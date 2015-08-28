@@ -24,11 +24,6 @@
             <argument type="expression">parameter('voryx_thruway')['realm']</argument>
         </service>
 
-        <service id="voryx.thruway.manager.client"
-                 class="Thruway\Manager\ManagerDummy"
-                 public="false">
-        </service>
-
         <service id="voryx.thruway.web.push.client"
                  class="Voryx\ThruwayBundle\Client\WebPushClient"
                  public="false">
@@ -44,7 +39,6 @@
         <service id="voryx.thruway.internal.manager"
                  class="Thruway\Transport\InternalClientTransportProvider"
                  public="false">
-            <argument type="service" id="voryx.thruway.manager.client"/>
         </service>
 
         <service id="voryx.thruway.internal.web.push"
@@ -55,7 +49,6 @@
 
         <service id="voryx.thruway.server" class="Thruway\Peer\Router">
             <argument type="service" id="voryx.thruway.loop"/>
-            <argument type="service" id="voryx.thruway.manager.client"/>
             <call method="addTransportProvider">
                 <argument type="service" id="voryx.thruway.ratchet.transport"/>
             </call>

@@ -78,20 +78,6 @@ class VoryxThruwayExtension extends Extension
      */
     protected function configureOptions(&$config, ContainerBuilder $container)
     {
-        //Add optional Manager
-        if (isset($config['router']['enable_manager']) && $config['router']['enable_manager'] === true) {
-
-            //Replace the dummy manager with the client manager
-            $container
-                ->getDefinition('voryx.thruway.manager.client')
-                ->setClass('Thruway\Manager\ManagerClient');
-
-            //Inject the manager client into the router
-            $container
-                ->getDefinition('voryx.thruway.server')
-                ->addMethodCall('addTransportProvider', [new Reference('voryx.thruway.internal.manager')]);
-
-        }
 
         if ($config['enable_logging'] !== true) {
             Logger::set(new NullLogger());
