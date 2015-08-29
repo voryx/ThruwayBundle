@@ -328,8 +328,11 @@ class WampKernel implements HttpKernelInterface
             return;
         }
 
-        $authid = isset($details->authid) ? $details->authid : "anonymous";
-        $user   = $this->authenticateAuthId($authid, $container);
+        if (!isset($details->authid)){
+            return;
+        }
+
+        $user = $this->authenticateAuthId($details->authid, $container);
 
         // Newer version of symfony have Controller::getUser(), so this isn't really needed anymore.  Leaving this here for BC.
         //Inject the User object if the UserAware trait in in use
@@ -436,6 +439,7 @@ class WampKernel implements HttpKernelInterface
                         );
                     }
 
+                    $args               = is_array($args) ? $args : (array) $args;
                     $className          = $params[$key]->getClass()->getName();
                     $deserializedArgs[] = $this->serializer->fromArray($arg, $className);
 
