@@ -94,6 +94,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('port')->defaultValue('8080')->end()
                         ->scalarNode('trusted_port')->defaultValue('8081')->end()
                         ->scalarNode('authentication')->defaultFalse()->end()
+						->scalarNode('authorization')->defaultFalse()->end()
                         ->booleanNode('enable_manager')->info('Deprecated')->defaultFalse()->end()
                         ->booleanNode('enable_web_push')->defaultFalse()->end()
                         ->booleanNode('enable_topic_state')->defaultFalse()->end()
