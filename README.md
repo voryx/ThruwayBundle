@@ -101,6 +101,71 @@ The WAMP-CRA service is already configured, we just need to add a tag to it to h
             - { name: thruway.internal_client }
 ```
 
+
+### Custom Authorization Manager
+
+You can set your own Authorization Manager in order to check if a user (identified by its authid) is allowed to publish | subscribe | call | register
+
+Create your Authorization Manager service, implementing AuthorizationManagerInterface (see the Thruway doc for details)
+
+```php
+// src/ACME/AppBundle/Security/MyAuthorizationManager.php
+
+
+use Thruway\Authentication\AuthorizationManagerInterface;
+use Thruway\Message\ActionMessageInterface;
+use Thruway\Message\SubscribeMessage;
+use Thruway\Session;
+
+class MyAuthorizationManager implements AuthorizationManagerInterface
+{
+    public function isAuthorizedTo(Session $session, ActionMessageInterface $actionMsg)
+    {
+        // set here the type of Action you want to check
+        // Here it's only Subscribe
+        if ($actionMsg instanceof  SubscribeMessage) {
+            // Here your own auth rule
+            $topic = $actionMsg->getTopicName();
+            /* In this example sub patterns meet the following :
+             * {userID}.{name}
+             * we explode the topic name to get the userID
+             */
+             $topic = explode('.', $topic);
+            if(is_integer($topic[0])){
+                  // UserID shall meet AuthID, else deny access
+                  if($topic[0] != $session->getMetaInfo()["authid"]){
+                        return false;
+                  }
+            }
+
+        }
+        return true;
+    }
+}
+```
+
+Register your authorization manager service
+
+```yml
+     my_authorization_manager:
+        class: ACME\AppBundle\Security\MyAuthorizationManager
+```
+
+Insert your service name in the voryx_thruway config
+
+```yml
+#app/config/config.yml
+
+voryx_thruway:
+    ...
+        authorization: my_authorization_manager # insert the name of your custom authorizationManager
+   ...
+```
+
+Restart the Thruway server; it will now check authorization upon publish | subscribe | call | register. 
+Remember to catch error when you try to subscribe to a topic (or any other action) as it may now be denied and this will be returned as an error.
+ 
+
 ## Usage
 
 
