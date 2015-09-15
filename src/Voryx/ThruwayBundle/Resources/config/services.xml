@@ -124,6 +124,7 @@
                  class="Voryx\ThruwayBundle\Client\ClientManager">
             <argument type="service" id="service_container"/>
             <argument>%voryx_thruway%</argument>
+            <argument type="service" id="serializer"/>
         </service>
 
 

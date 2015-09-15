@@ -3,6 +3,7 @@
 namespace Voryx\ThruwayBundle\Client;
 
 
+use JMS\Serializer\Serializer;
 use Psr\Log\NullLogger;
 use React\Promise\Deferred;
 use Symfony\Component\DependencyInjection\Container;
@@ -22,31 +23,26 @@ class ClientManager
     /* @var Container */
     private $container;
 
-    /**
-     * @var
-     */
+    /** @var */
     private $config;
 
 
-    /**
-     * @var
-     */
+    /** @var Serializer */
     private $serializer;
 
     /**
      * @param Container $container
      * @param $config
+     * @param Serializer$serializer
      */
-    function __construct(Container $container, $config)
+    function __construct(Container $container, $config, Serializer $serializer)
     {
         $this->container  = $container;
         $this->config     = $config;
-        $this->serializer = $container->get('serializer');
+        $this->serializer = $serializer;
     }
 
     /**
-     * //@todo implement a non-blocking version of this
-     *
      * @param $topicName
      * @param $arguments
      * @param array|null $argumentsKw
@@ -55,53 +51,42 @@ class ClientManager
      */
     public function publish($topicName, $arguments, $argumentsKw = [], $options = null)
     {
-        //Use the serializer to serialize and than deserialize.  This is a hack because the serializer doesn't support the array format and we need to be able to handle Entities
-        $arguments   = json_decode($this->serializer->serialize($arguments, "json"));
-        $argumentsKw = json_decode($this->serializer->serialize($argumentsKw, "json"));
+
+        $arguments   = $this->serializer->toArray($arguments);
+        $argumentsKw = $this->serializer->toArray($argumentsKw);
 
         //If we already have a client open that we can use, use that
-        if ($this->container->initialized('wamp_kernel')
-            && $client = $this->container->get('wamp_kernel')->getClient()
-        ) {
+        if ($this->container->initialized('wamp_kernel') && $client = $this->container->get('wamp_kernel')->getClient()) {
             $session = $this->container->get('wamp_kernel')->getSession();
 
             return $session->publish($topicName, $arguments, $argumentsKw, $options);
         }
 
-	if (is_array($options)) {
-            $options = (object)$options;
+        if (is_array($options)) {
+            $options = (object) $options;
         }
 
         if (!is_object($options)) {
-            $options = (object)[];
+            $options = (object) [];
         }
-        
-        Logger::set(new NullLogger());
+
+        Logger::set(new NullLogger()); //So logs don't show up on the web page
 
         //If we don't already have a long running client, get a short lived one.
-        $client                 = $this->getShortClient();
-        $options->acknowledge   = true;
-        $deferrer               = new Deferred();
+        $client               = $this->getShortClient();
+        $options->acknowledge = true;
+        $deferrer             = new Deferred();
 
-        $client->on("open", function (ClientSession $session, TransportInterface $transport) use (
-            $deferrer,
-            $topicName,
-            $arguments,
-            $argumentsKw,
-            $options
-        ) {
+        $client->on("open", function (ClientSession $session, TransportInterface $transport) use ($deferrer, $topicName, $arguments, $argumentsKw, $options) {
             $session->publish($topicName, $arguments, $argumentsKw, $options)->then(
-                function () use ($deferrer, $transport) {
-                    $transport->close();
-                    $deferrer->resolve();
-                }
-            );
+              function () use ($deferrer, $transport) {
+                  $transport->close();
+                  $deferrer->resolve();
+              });
         });
 
         $client->on("error", function ($error) use ($topicName) {
-            $this->container->get('logger')->addError(
-                "Got the following error when trying to publish to '{$topicName}': {$error}"
-            );
+            $this->container->get('logger')->addError("Got the following error when trying to publish to '{$topicName}': {$error}");
         });
 
         $client->start();
@@ -115,49 +100,37 @@ class ClientManager
      * @param $arguments
      * @return \React\Promise\Promise
      */
-    public function call($procedureName, $arguments)
+    public function call($procedureName, $arguments, $argumentsKw = [], $options = null)
     {
-        //Use the serializer to serialize and than deserialize.  This is a hack because the serializer doesn't support the array format and we need to be able to handle Entities
-        $arguments = json_decode($this->serializer->serialize($arguments, "json"));
+        $arguments   = $this->serializer->toArray($arguments);
+        $argumentsKw = $this->serializer->toArray($argumentsKw);
 
         //If we already have a client open that we can use, use that
-        if ($this->container->initialized('wamp_kernel')
-            && $client = $this->container->get('wamp_kernel')->getClient()
-        ) {
+        if ($this->container->initialized('wamp_kernel') && $client = $this->container->get('wamp_kernel')->getClient()) {
             $session = $this->container->get('wamp_kernel')->getSession();
 
-            return $session->call($procedureName, $arguments);
+            return $session->call($procedureName, $arguments, $argumentsKw, $options);
         }
+
+        Logger::set(new NullLogger()); //So logs don't show up on the web page
 
         //If we don't already have a long running client, get a short lived one.
         $client   = $this->getShortClient();
         $deferrer = new Deferred();
 
-        $client->on(
-            "open",
-            function (ClientSession $session, TransportInterface $transport) use (
-                $deferrer,
-                $procedureName,
-                $arguments
-            ) {
-                $session->call($procedureName, $arguments)->then(
-                    function ($res) use ($deferrer, $transport) {
-                        $transport->close();
-                        $deferrer->resolve($res);
-                    }
-                );
-            }
-        );
+        $client->on("open", function (ClientSession $session, TransportInterface $transport) use ($deferrer, $procedureName, $arguments, $argumentsKw, $options) {
+            $session->call($procedureName, $arguments, $argumentsKw, $options)->then(
+              function ($res) use ($deferrer, $transport) {
+                  $transport->close();
+                  $deferrer->resolve($res);
+              });
+        });
 
-        $client->on(
-            "error",
-            function ($error) use ($procedureName) {
-                $this->container->get('logger')->addError(
-                    "Got the following error when trying to call '{$procedureName}': {$error}"
-                );
-                throw new \Exception("Got the following error when trying to call '{$procedureName}': {$error}");
-            }
-        );
+        $client->on("error", function ($error) use ($procedureName) {
+            $this->container->get('logger')->addError("Got the following error when trying to call '{$procedureName}': {$error}");
+            throw new \Exception("Got the following error when trying to call '{$procedureName}': {$error}");
+        });
+
         $client->start();
 
         return $deferrer->promise();
@@ -174,9 +147,7 @@ class ClientManager
 
         $client = new Client($this->config['realm']);
         $client->setAttemptRetry(false);
-        $client->addTransportProvider(
-            new PawlTransportProvider($this->config['trusted_url'])
-        );
+        $client->addTransportProvider(new PawlTransportProvider($this->config['trusted_url']));
 
         return $client;
 
