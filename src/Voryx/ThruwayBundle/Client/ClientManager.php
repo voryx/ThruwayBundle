@@ -33,7 +33,7 @@ class ClientManager
     /**
      * @param Container $container
      * @param $config
-     * @param Serializer$serializer
+     * @param Serializer $serializer
      */
     function __construct(Container $container, $config, Serializer $serializer)
     {
@@ -51,7 +51,8 @@ class ClientManager
      */
     public function publish($topicName, $arguments, $argumentsKw = [], $options = null)
     {
-
+        $arguments   = $arguments ?: [$arguments];
+        $argumentsKw = $argumentsKw ?: [$argumentsKw];
         $arguments   = $this->serializer->toArray($arguments);
         $argumentsKw = $this->serializer->toArray($argumentsKw);
 
@@ -102,6 +103,8 @@ class ClientManager
      */
     public function call($procedureName, $arguments, $argumentsKw = [], $options = null)
     {
+        $arguments   = $arguments ?: [$arguments];
+        $argumentsKw = $argumentsKw ?: [$argumentsKw];
         $arguments   = $this->serializer->toArray($arguments);
         $argumentsKw = $this->serializer->toArray($argumentsKw);
 

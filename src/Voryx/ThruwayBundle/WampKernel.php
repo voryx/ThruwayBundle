@@ -258,7 +258,7 @@ class WampKernel implements HttpKernelInterface
                 $d = $d instanceof CallResult ? [$d[0]] : $d;
                 return $this->serializer->toArray($d, $context);
             });
-        } else {
+        } elseif ($rawResult !== null) {
             return $this->serializer->toArray($rawResult, $context);
         }
     }
