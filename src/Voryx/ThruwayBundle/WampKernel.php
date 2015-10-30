@@ -439,7 +439,7 @@ class WampKernel implements HttpKernelInterface
                         );
                     }
 
-                    $args               = is_array($args) ? $args : (array) $args;
+                    $arg                = is_array($arg) ? $arg : (array) $arg;
                     $className          = $params[$key]->getClass()->getName();
                     $deserializedArgs[] = $this->serializer->fromArray($arg, $className);
 
