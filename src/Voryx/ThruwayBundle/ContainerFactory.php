@@ -11,17 +11,22 @@ use Voryx\ThruwayBundle\Client\ClientManager;
 class ContainerFactory
 {
 
-    public static function createContainer($containerName, ClientManager $thruwayClient, LoopInterface $loop)
+    public static function createContainer($containerName, ClientManager $thruwayClient, LoopInterface $loop, ContainerInterface $parentContainer)
     {
 
-        /** @var ContainerInterface $container */
-        $container = new $containerName();
+        /** @var ContainerInterface $childContainer */
+        $childContainer = new $containerName();
 
         //These services will be passed from the outer container into the inner container
-        $container->set('thruway.client', $thruwayClient);
-        $container->set('voryx.thruway.loop', $loop);
+        $childContainer->set('thruway.client', $thruwayClient);
+        $childContainer->set('voryx.thruway.loop', $loop);
 
-        return $container;
+        //Any service that is tagged 'thruway.global' will be copied to the child container
+        foreach ($parentContainer->get('tagged_service_holder') as $taggedService) {
+            $childContainer->set($taggedService[0], $taggedService[1]);
+        }
+
+        return $childContainer;
     }
 
 }

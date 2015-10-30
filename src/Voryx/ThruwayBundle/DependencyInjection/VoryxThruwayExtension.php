@@ -24,9 +24,9 @@ class VoryxThruwayExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
+        $config        = $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
         $this->validate($config);
@@ -34,6 +34,8 @@ class VoryxThruwayExtension extends Extension
         $container->setParameter('voryx_thruway', $config);
 
         $this->configureOptions($config, $container);
+
+        $this->createTaggedServiceHolder($config, $container);
     }
 
     /**
@@ -47,25 +49,25 @@ class VoryxThruwayExtension extends Extension
 
         if (isset($config['resources']) && !is_array($config['resources'])) {
             throw new \InvalidArgumentException(
-                'The "resources" option must be an array'
+              'The "resources" option must be an array'
             );
         }
 
         if (isset($config['uri'])) {
             throw new \InvalidArgumentException(
-                'The "uri" config option has been deprecated, please use "url" instead'
+              'The "uri" config option has been deprecated, please use "url" instead'
             );
         }
 
         if (isset($config['trusted_uri'])) {
             throw new \InvalidArgumentException(
-                'The "trusted_uri" config option has been deprecated, please use "trusted_url" instead'
+              'The "trusted_uri" config option has been deprecated, please use "trusted_url" instead'
             );
         }
 
         if (!isset($config['realm'])) {
             throw new \InvalidArgumentException(
-                'The "realm" option must be set within voryx_thruway'
+              'The "realm" option must be set within voryx_thruway'
             );
         }
     }
@@ -87,8 +89,8 @@ class VoryxThruwayExtension extends Extension
 
             //Inject the authentication manager into the router
             $container
-                ->getDefinition('voryx.thruway.server')
-                ->addMethodCall('registerModule', [new Reference('voryx.thruway.authentication.manager')]);
+              ->getDefinition('voryx.thruway.server')
+              ->addMethodCall('registerModule', [new Reference('voryx.thruway.authentication.manager')]);
         }
 
         if ($container->hasDefinition('security.user.provider.concrete.in_memory')) {
@@ -99,8 +101,24 @@ class VoryxThruwayExtension extends Extension
         if (isset($config['router']['enable_topic_state']) && $config['router']['enable_topic_state'] === true) {
 
             $container
-                ->getDefinition('voryx.thruway.server')
-                ->addMethodCall('registerModule', [new Reference('voryx.thruway.topic.state.handler')]);
+              ->getDefinition('voryx.thruway.server')
+              ->addMethodCall('registerModule', [new Reference('voryx.thruway.topic.state.handler')]);
+        }
+    }
+
+    /**
+     * Creates a service that allows us to store the services that get tagged with 'thruway.global'
+     *
+     * @param $config
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+     */
+    protected function createTaggedServiceHolder($config, ContainerBuilder $container)
+    {
+
+        if (!$container->hasDefinition('tagged_service_holder')) {
+            $taggedServiceHolder = new Definition();
+            $taggedServiceHolder->setClass('ArrayObject');
+            $container->setDefinition('tagged_service_holder', $taggedServiceHolder);
         }
     }
 }
