@@ -12,9 +12,17 @@ class TestController extends Controller
 {
 
     /**
-     * simple rpc test
+     * simple rpc test - one argument
      */
     public function simpleRPCTest($firstArg)
+    {
+        return func_get_args();
+    }
+
+    /**
+     * simple rpc test - 2 argument
+     */
+    public function simpleTwoArgRPCTest($firstArg, $secondArg)
     {
         return func_get_args();
     }
@@ -61,5 +69,39 @@ class TestController extends Controller
         return [$person, $name, $name2];
     }
 
+    /**
+     * rpc test with no args
+     */
+    public function RPCTestWithNull()
+    {
+        return [];
+    }
 
+
+    /**
+     * rpc test that returns null
+     */
+    public function RPCTestReturnNull()
+    {
+        return null;
+    }
+
+    /**
+     * rpc test that throws exception
+     */
+    public function RPCTestThrowException()
+    {
+        throw new \Exception('something bad');
+
+    }
+
+    /**
+     * rpc test - undefined variable
+     */
+    public function RPCTestUndefinedVar()
+    {
+        $t[] = $b;
+        return $t;
+
+    }
 }
