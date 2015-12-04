@@ -62,6 +62,7 @@ class ThruwayWorkerCommand extends ContainerAwareCommand
         } catch (\Exception $e) {
             $logger = $this->getContainer()->get('logger');
             $logger->addCritical("EXCEPTION:" . $e->getMessage());
+            $output->writeln("EXCEPTION:" . $e->getMessage());
         }
     }
 }

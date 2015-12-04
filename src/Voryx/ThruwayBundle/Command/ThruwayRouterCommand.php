@@ -48,7 +48,7 @@ class ThruwayRouterCommand extends ContainerAwareCommand
         } catch (\Exception $e) {
             $logger = $this->getContainer()->get('logger');
             $logger->addCritical("EXCEPTION:" . $e->getMessage());
-            $output->writeln("Error... see log for more info");
+            $output->writeln("EXCEPTION:" . $e->getMessage());
         }
     }
 }
