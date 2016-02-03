@@ -127,5 +127,17 @@ class VoryxThruwayExtension extends Extension
             $taggedServiceHolder->setClass('ArrayObject');
             $container->setDefinition('tagged_service_holder', $taggedServiceHolder);
         }
+
+        //Create a new instance of the container each time
+        if (!$container->hasDefinition('thruway_container')) {
+            $def = $container->getDefinition('thruway_container');
+
+            //For symfony >= v2.8
+            if (method_exists($def, 'setShared')) {
+                $def->setShared(true);
+            } elseif (method_exists($def, 'setScope')) {
+                $def->setScope('prototype');
+            }
+        }
     }
 }

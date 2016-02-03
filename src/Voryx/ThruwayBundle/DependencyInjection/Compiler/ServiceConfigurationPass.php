@@ -22,7 +22,13 @@ class ServiceConfigurationPass implements CompilerPassInterface
         foreach ($container->findTaggedServiceIds('thruway.resource') as $id => $attr) {
 
             $def = $container->getDefinition($id);
-            $def->setScope('prototype');
+
+            //For symfony >= v2.8
+            if (method_exists($def, 'setShared')) {
+                $def->setShared(true);
+            } elseif (method_exists($def, 'setScope')) {
+                $def->setScope('prototype');
+            }
 
             $className      = $def->getClass();
             $class          = new \ReflectionClass($className);
