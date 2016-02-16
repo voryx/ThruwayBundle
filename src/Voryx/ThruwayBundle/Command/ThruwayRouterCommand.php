@@ -30,7 +30,7 @@ class ThruwayRouterCommand extends ContainerAwareCommand
 
         try {
 
-            $output->writeln("Making a go at starting the Thruway Router");
+            $output->writeln("Starting the Thruway Router");
 
             //Configure stuff
             $config = $this->getContainer()->getParameter('voryx_thruway');
@@ -39,7 +39,7 @@ class ThruwayRouterCommand extends ContainerAwareCommand
             $server = $this->getContainer()->get('voryx.thruway.server');
 
             //Trusted provider (bound to loopback and requires no authentication)
-            $trustedProvider = new RatchetTransportProvider($config['router']['ip'], $config['router']['trusted_port']);
+            $trustedProvider = new RatchetTransportProvider($config['ip'], $config['trusted_port']);
             $trustedProvider->setTrusted(true);
             $server->addTransportProvider($trustedProvider);
 

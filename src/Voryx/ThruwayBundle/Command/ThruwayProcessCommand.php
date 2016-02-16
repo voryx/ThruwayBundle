@@ -57,12 +57,12 @@ class ThruwayProcessCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('thruway:process')
-            ->setAliases(['tp'])
-            ->setDescription('Thruway Process Manager')
-            ->setHelp("The <info>%command.name%</info> manages thruway sub processes (workers).")
-            ->addArgument('action', InputArgument::REQUIRED, 'Actions: start, status')
-            ->addArgument('worker', InputArgument::OPTIONAL, 'Actions for individual workers: start, stop, restart');
+          ->setName('thruway:process')
+          ->setAliases(['tp'])
+          ->setDescription('Thruway Process Manager')
+          ->setHelp("The <info>%command.name%</info> manages thruway sub processes (workers).")
+          ->addArgument('action', InputArgument::REQUIRED, 'Actions: start, status')
+          ->addArgument('worker', InputArgument::OPTIONAL, 'Actions for individual workers: start, stop, restart');
     }
 
 
@@ -151,8 +151,8 @@ class ThruwayProcessCommand extends ContainerAwareCommand
 
         } catch (\Exception $e) {
             $logger = $this->getContainer()->get('logger');
-            $logger->addCritical("EXCEPTION:" . $e->getMessage());
-            $this->output->writeln("EXCEPTION:" . $e->getMessage());
+            $logger->addCritical("EXCEPTION:".$e->getMessage());
+            $this->output->writeln("EXCEPTION:".$e->getMessage());
         }
     }
 
@@ -172,14 +172,14 @@ class ThruwayProcessCommand extends ContainerAwareCommand
         $connection = new Connection(['realm' => $realm, 'url' => $this->config['trusted_url'], "max_retries" => 0]);
         $connection->on('open', function (ClientSession $session) use ($uri, $args, $connection, &$result) {
             $session->call($uri, $args)->then(
-                function ($res) use ($connection, &$result) {
-                    $result = $res[0];
-                    $connection->close();
-                },
-                function ($error) use ($connection, &$result) {
-                    $result = $error;
-                    $connection->close();
-                }
+              function ($res) use ($connection, &$result) {
+                  $result = $res[0];
+                  $connection->close();
+              },
+              function ($error) use ($connection, &$result) {
+                  $result = $error;
+                  $connection->close();
+              }
             );
         });
 
@@ -239,7 +239,7 @@ class ThruwayProcessCommand extends ContainerAwareCommand
 
             $uptime = "Not Started";
             if (isset($status->started_at) && $status->status === "RUNNING") {
-                $uptime = "up since " . date("l F jS \@ g:i:s a", $status->started_at);
+                $uptime = "up since ".date("l F jS \@ g:i:s a", $status->started_at);
             }
 
             $pid = null;
@@ -248,7 +248,7 @@ class ThruwayProcessCommand extends ContainerAwareCommand
             }
 
             $this->output->writeln(sprintf("%-25s %-3s %-10s %s, %s ", $status->name, $status->process_number, $status->status,
-                $pid, $uptime));
+              $pid, $uptime));
         }
     }
 
@@ -276,8 +276,11 @@ class ThruwayProcessCommand extends ContainerAwareCommand
 
         //Default Symfony Command Workers
         $defaultWorkers = [
-            "router" => "thruway:router:start"
+          "router" => "thruway:router:start",
         ];
+
+        //@todo add ability to disable this in the config
+        $defaultWorkers["http-proxy"] = "thruway:http-proxy:start";
 
         $onetimeWorkers = array_merge($defaultWorkers, $this->config['workers']['symfony_commands']);
 

@@ -15,18 +15,12 @@
         <service id="voryx.thruway.ratchet.transport"
                  class="Thruway\Transport\RatchetTransportProvider"
                  public="false">
-            <argument type="expression">parameter('voryx_thruway')['router']['ip']</argument>
-            <argument type="expression">parameter('voryx_thruway')['router']['port']</argument>
+            <argument type="expression">parameter('voryx_thruway')['ip']</argument>
+            <argument type="expression">parameter('voryx_thruway')['port']</argument>
         </service>
 
         <service id="voryx.thruway.client"
                  class="Thruway\Peer\Client">
-            <argument type="expression">parameter('voryx_thruway')['realm']</argument>
-        </service>
-
-        <service id="voryx.thruway.web.push.client"
-                 class="Voryx\ThruwayBundle\Client\WebPushClient"
-                 public="false">
             <argument type="expression">parameter('voryx_thruway')['realm']</argument>
         </service>
 
@@ -80,7 +74,6 @@
         <service id="thruway_container" class="Symfony\Component\DependencyInjection\Container">
             <factory class="Voryx\ThruwayBundle\ContainerFactory" method="createContainer"/>
             <argument type="expression">parameter('kernel.container_class')</argument>
-            <argument type="service" id="thruway.client"/>
             <argument type="service" id="voryx.thruway.loop"/>
             <argument type="service" id="service_container"/>
         </service>
@@ -123,10 +116,8 @@
 
         <!--Main Thruway Client-->
         <service id="thruway.client"
-                 class="Voryx\ThruwayBundle\Client\ClientManager">
-            <argument type="service" id="service_container"/>
+                 class="Voryx\ThruwayBundle\Client\HttpClient">
             <argument>%voryx_thruway%</argument>
-            <argument type="service" id="serializer"/>
         </service>
 
 

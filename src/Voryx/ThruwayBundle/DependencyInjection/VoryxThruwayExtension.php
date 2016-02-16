@@ -25,17 +25,17 @@ class VoryxThruwayExtension extends Extension
     {
         $configuration = new Configuration();
         $config        = $this->processConfiguration($configuration, $configs);
+        $loader        = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
-        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
         $this->validate($config);
 
-        $container->setParameter('voryx_thruway', $config);
-
         $this->configureOptions($config, $container);
 
         $this->createTaggedServiceHolder($config, $container);
+
+        $container->setParameter('voryx_thruway', $config);
     }
 
     /**
@@ -53,23 +53,24 @@ class VoryxThruwayExtension extends Extension
             );
         }
 
-        if (isset($config['uri'])) {
+        if (isset($config['router']['ip'])) {
             throw new \InvalidArgumentException(
-              'The "uri" config option has been deprecated, please use "url" instead'
+              'The "ip" configuration has moved up a level within the "voryx_thruway" config'
             );
         }
 
-        if (isset($config['trusted_uri'])) {
+        if (isset($config['router']['port'])) {
             throw new \InvalidArgumentException(
-              'The "trusted_uri" config option has been deprecated, please use "trusted_url" instead'
+              'The "trusted" configuration has moved up a level within the "voryx_thruway" config'
             );
         }
 
-        if (!isset($config['realm'])) {
+        if (isset($config['router']['trusted_port'])) {
             throw new \InvalidArgumentException(
-              'The "realm" option must be set within voryx_thruway'
+              'The "trusted_port" configuration has moved up a level within the "voryx_thruway" config'
             );
         }
+
     }
 
     /**
@@ -85,6 +86,25 @@ class VoryxThruwayExtension extends Extension
             Logger::set(new NullLogger());
         }
 
+
+        if (!isset($config['url'])) {
+            $config['url'] = "ws://{$config['ip']}:{$config['port']}'";
+        }
+
+        if (!isset($config['trusted_url'])) {
+            $config['trusted_url'] = "ws://{$config['ip']}:{$config['trusted_port']}'";
+        }
+
+        $hostName = strtolower(gethostname());
+
+        if (!isset($config['realm']) && !$hostName) {
+            throw new \InvalidArgumentException(
+              'Could not set the "realm" to the hostname, please set in within the "voryx_thruway" config'
+            );
+        } elseif (!isset($config['realm'])) {
+            $config['realm'] = $hostName;
+        }
+
         if (isset($config['router']['authentication']) && $config['router']['authentication'] !== false) {
 
             //Inject the authentication manager into the router
@@ -93,11 +113,11 @@ class VoryxThruwayExtension extends Extension
               ->addMethodCall('registerModule', [new Reference('voryx.thruway.authentication.manager')]);
         }
 
-		
+
         if (isset($config['router']['authorization']) && $config['router']['authorization'] !== false) {
             $authId = $config['router']['authorization'];
             $container->getDefinition('voryx.thruway.server')
-                ->addMethodCall('setAuthorizationManager', [new Reference($authId)]);
+              ->addMethodCall('setAuthorizationManager', [new Reference($authId)]);
         }
 
         if ($container->hasDefinition('security.user.provider.concrete.in_memory')) {
