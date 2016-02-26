@@ -41,6 +41,8 @@ voryx_thruway:
         bundles: ["AppBundle"]
 #        files:
 #            - "Acme\\DemoBundle\\Controller\\DemoController"
+    serializer: # allow to set JMS_Serializer parameters - for now only serialize_null
+        serialize_null: true
       
 ```
 If you are using the in-memory user provider, you'll need to add a ```thruway``` to the security firewall and set the ``in_memory_user_provider``.
