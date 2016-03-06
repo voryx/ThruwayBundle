@@ -1,5 +1,5 @@
 {
-  "name": "voryx/thruway-bundle",
+  "name": "MateuszWilk/thruway-bundle",
   "type": "symfony-bundle",
   "description": "WebSockets (WAMP2) integration for Symfony2",
   "keywords": [
