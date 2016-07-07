@@ -107,8 +107,7 @@
         </service>
 
         <service id="voryx.thruway.wamp.cra.auth.client"
-                 class="Thruway\Authentication\WampCraAuthProvider"
-                 public="false">
+                 class="Thruway\Authentication\WampCraAuthProvider">
             <argument type="expression">[parameter('voryx_thruway')['realm']]</argument>
             <call method="setUserDb">
                 <argument type="service" id="voryx.thruway.user.db"/>
