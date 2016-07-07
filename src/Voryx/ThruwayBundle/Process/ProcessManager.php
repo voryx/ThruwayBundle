@@ -130,16 +130,16 @@ class ProcessManager extends Client
     public function startProcess($args)
     {
 
-        $deffer = new Deferred();
+        $deferred = new Deferred();
 
         $name = $args[0];
         if (isset($this->commands[$name])) {
-            $deffer->resolve($this->commands[$name]->startProcess());
+            $deferred->resolve($this->commands[$name]->startProcess());
         } else {
-            $deffer->reject("Can't find process {$name}");
+            $deferred->reject("Can't find process {$name}");
         };
 
-        return $deffer->promise();
+        return $deferred->promise();
     }
 
     /**
@@ -148,17 +148,17 @@ class ProcessManager extends Client
      */
     public function stopProcess($args)
     {
-        $deffer = new Deferred();
+        $deferred = new Deferred();
 
         $name = $args[0];
 
         if (isset($this->commands[$name])) {
-            $deffer->resolve($this->commands[$name]->stopProcess());
+            $deferred->resolve($this->commands[$name]->stopProcess());
         } else {
-            $deffer->reject("Unable to find process '{$name}'");
+            $deferred->reject("Unable to find process '{$name}'");
         };
 
-        return $deffer->promise();
+        return $deferred->promise();
     }
 
     /**
