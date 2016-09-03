@@ -82,13 +82,14 @@ security:
             key_length:           32
 ```
 
-set voryx_thruway.user_provider to "fos_user.user_manager"
+set voryx_thruway.user_provider to "fos_user.user_provider"
 
 ```yml
 #app/config/config.yml
 
 voryx_thruway:
-    user_provider: 'fos_user.user_manager' 
+    user_provider: 'fos_user.user_provider.username' #fos_user.user_provider.username_email login with email
+
 ```
 
 The WAMP-CRA service is already configured, we just need to add a tag to it to have the bundle install it:
