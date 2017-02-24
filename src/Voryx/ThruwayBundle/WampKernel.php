@@ -491,10 +491,7 @@ class WampKernel implements HttpKernelInterface
         $token       = new UsernamePasswordToken($user, null, $providerKey, $user->getRoles());
 
         //Use the controller's container to set the token
-        // This is deprecated in 2.6. we are leaving security.context for BC
-        $container->get('security.context')->setToken($token);
-        // This is what it should look like in 2.6+
-        //$container->get('security.token_storage')->setToken($token);
+        $container->get('security.token_storage')->setToken($token);
     }
 
 
