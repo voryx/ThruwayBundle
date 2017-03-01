@@ -40,7 +40,7 @@ class Worker implements AnnotationInterface
         foreach ($options as $key => $value) {
             if (!property_exists($this, $key)) {
                 throw new \InvalidArgumentException(
-                    sprintf('Property "%s" does not exist for the Register annotation', $key)
+                    sprintf('Property "%s" does not exist for the Worker annotation', $key)
                 );
             }
             $this->$key = $value;
