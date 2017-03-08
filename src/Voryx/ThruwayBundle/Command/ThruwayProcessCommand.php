@@ -8,6 +8,7 @@ use Psr\Log\NullLogger;
 use React\Promise\Deferred;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Thruway\ClientSession;
@@ -61,6 +62,7 @@ class ThruwayProcessCommand extends ContainerAwareCommand
             ->setAliases(['tp'])
             ->setDescription('Thruway Process Manager')
             ->setHelp("The <info>%command.name%</info> manages thruway sub processes (workers).")
+            ->addOption('exec', null, InputOption::VALUE_NONE, 'Use "exec" command when starting processes')
             ->addArgument('action', InputArgument::REQUIRED, 'Actions: start, status')
             ->addArgument('worker', InputArgument::OPTIONAL, 'Actions for individual workers: start, stop, restart');
     }
@@ -273,6 +275,9 @@ class ThruwayProcessCommand extends ContainerAwareCommand
     {
 
         $phpBinary = PHP_BINARY;
+        if ($this->input->getOption('exec')) {
+            $phpBinary = 'exec ' . $phpBinary;
+        }
 
         //Default Symfony Command Workers
         $defaultWorkers = [
@@ -329,6 +334,9 @@ class ThruwayProcessCommand extends ContainerAwareCommand
     protected function addWorkers($env)
     {
         $phpBinary      = PHP_BINARY;
+        if ($this->input->getOption('exec')) {
+            $phpBinary = 'exec ' . $phpBinary;
+        }
         $resourceMapper = $this->getContainer()->get('voryx.thruway.resource.mapper');
         $mappings       = $resourceMapper->getAllMappings();
 
