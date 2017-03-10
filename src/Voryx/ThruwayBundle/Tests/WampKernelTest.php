@@ -1,28 +1,17 @@
 <?php
 
-
 namespace Voryx\ThruwayBundle\Tests;
 
-
-use Doctrine\Common\Annotations\AnnotationReader;
-use JMS\Serializer\Construction\UnserializeObjectConstructor;
-use JMS\Serializer\Handler\HandlerRegistry;
-use JMS\Serializer\JsonDeserializationVisitor;
-use JMS\Serializer\JsonSerializationVisitor;
-use JMS\Serializer\Metadata\Driver\AnnotationDriver;
-use JMS\Serializer\Naming\CamelCaseNamingStrategy;
-use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
-use JMS\Serializer\SerializationContext;
-use JMS\Serializer\Serializer;
-use Metadata\MetadataFactory;
-use MyProject\Proxies\__CG__\stdClass;
-use PhpCollection\Map;
 use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Thruway\ClientSession;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use Voryx\ThruwayBundle\Annotation\Register;
 use Voryx\ThruwayBundle\Mapping\URIClassMapping;
+use Voryx\ThruwayBundle\Serialization\ArrayEncoder;
 use Voryx\ThruwayBundle\Tests\Fixtures\Person;
 use Voryx\ThruwayBundle\WampKernel;
 
@@ -41,20 +30,17 @@ class WampKernelTest extends \PHPUnit_Framework_TestCase
     public function setup()
     {
 
-        $this->container = new \Symfony\Component\DependencyInjection\ContainerBuilder();
+        $this->container = new ContainerBuilder();
 
         //Create a WampKernel instance
-        $reader           = $this->getMockBuilder('Doctrine\Common\Annotations\Reader')->getMock();
-        $resourceMapper   = new \Voryx\ThruwayBundle\ResourceMapper($reader);
-        $dispatcher       = new EventDispatcher();
-        $namingStrategy   = new SerializedNameAnnotationStrategy(new CamelCaseNamingStrategy());
-        $this->serializer = new Serializer(
-          new MetadataFactory(new AnnotationDriver(new AnnotationReader())),
-          new HandlerRegistry(),
-          new UnserializeObjectConstructor(),
-          new Map(['json' => new JsonSerializationVisitor($namingStrategy)]),
-          new Map(['json' => new JsonDeserializationVisitor($namingStrategy)])
-        );
+        $reader         = $this->getMockBuilder('Doctrine\Common\Annotations\Reader')->getMock();
+        $resourceMapper = new \Voryx\ThruwayBundle\ResourceMapper($reader);
+        $dispatcher     = new EventDispatcher();
+
+        $encoders    = [new ArrayEncoder(), new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+
+        $this->serializer = new Serializer($normalizers, $encoders);
 
         $this->wampkernel = new WampKernel($this->container, $this->serializer, $resourceMapper, $dispatcher, new NullLogger());
 
@@ -138,7 +124,6 @@ class WampKernelTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([new Person("dave")], $result);
 
     }
-
 
     /**
      * @test

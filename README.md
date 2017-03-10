@@ -18,7 +18,6 @@ Update AppKernel.php
 ```php
 $bundles = array(
     // ...
-    new JMS\SerializerBundle\JMSSerializerBundle(),
     new Voryx\ThruwayBundle\VoryxThruwayBundle($this),
     // ...
 );
@@ -227,7 +226,7 @@ Remember to catch error when you try to subscribe to a topic (or any other actio
     }
 ```
 
-It uses JMS Serializer, so it can serialize and deserialize Entities
+It uses Symfony Serializer, so it can serialize and deserialize Entities
 
 ```php
     

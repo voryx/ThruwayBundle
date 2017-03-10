@@ -2,11 +2,10 @@
 
 namespace Voryx\ThruwayBundle\Client;
 
-
-use JMS\Serializer\Serializer;
 use Psr\Log\NullLogger;
 use React\Promise\Deferred;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\Serializer\Serializer;
 use Thruway\ClientSession;
 use Thruway\Logging\Logger;
 use Thruway\Peer\Client;
@@ -19,7 +18,6 @@ use Thruway\Transport\TransportInterface;
  */
 class ClientManager
 {
-
     /* @var Container */
     private $container;
 
@@ -33,13 +31,11 @@ class ClientManager
     /**
      * @param Container $container
      * @param $config
-     * @param Serializer $serializer
      */
-    function __construct(Container $container, $config, Serializer $serializer)
+    public function __construct(Container $container, $config)
     {
         $this->container  = $container;
         $this->config     = $config;
-        $this->serializer = $serializer;
     }
 
     /**
@@ -48,13 +44,14 @@ class ClientManager
      * @param array|null $argumentsKw
      * @param null $options
      * @return \React\Promise\Promise
+     * @throws \Exception
      */
     public function publish($topicName, $arguments, $argumentsKw = [], $options = null)
     {
         $arguments   = $arguments ?: [$arguments];
         $argumentsKw = $argumentsKw ?: [$argumentsKw];
-        $arguments   = $this->serializer->toArray($arguments);
-        $argumentsKw = $this->serializer->toArray($argumentsKw);
+        $arguments   = $this->serializer->serialize($arguments, 'array');
+        $argumentsKw = $this->serializer->serialize($argumentsKw, 'array');
 
         //If we already have a client open that we can use, use that
         if ($this->container->initialized('wamp_kernel') && $client = $this->container->get('wamp_kernel')->getClient()) {
@@ -93,20 +90,20 @@ class ClientManager
         $client->start();
 
         return $deferrer->promise();
-
     }
 
     /**
      * @param $procedureName
      * @param $arguments
      * @return \React\Promise\Promise
+     * @throws \Exception
      */
     public function call($procedureName, $arguments, $argumentsKw = [], $options = null)
     {
         $arguments   = $arguments ?: [$arguments];
         $argumentsKw = $argumentsKw ?: [$argumentsKw];
-        $arguments   = $this->serializer->toArray($arguments);
-        $argumentsKw = $this->serializer->toArray($argumentsKw);
+        $arguments   = $this->serializer->serialize($arguments, 'array');
+        $argumentsKw = $this->serializer->serialize($argumentsKw, 'array');
 
         //If we already have a client open that we can use, use that
         if ($this->container->initialized('wamp_kernel') && $client = $this->container->get('wamp_kernel')->getClient()) {
@@ -137,9 +134,7 @@ class ClientManager
         $client->start();
 
         return $deferrer->promise();
-
     }
-
 
     /**
      * @return Client
@@ -147,12 +142,10 @@ class ClientManager
      */
     private function getShortClient()
     {
-
         $client = new Client($this->config['realm']);
         $client->setAttemptRetry(false);
         $client->addTransportProvider(new PawlTransportProvider($this->config['trusted_url']));
 
         return $client;
-
     }
 }
