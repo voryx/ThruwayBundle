@@ -129,10 +129,5 @@
             <argument type="expression">parameter('voryx_thruway')['realm']</argument>
             <argument type="service" id="voryx.thruway.loop"/>
         </service>
-
-        <service id="serializer.encoder.array" class="Voryx\ThruwayBundle\Serialization\ArrayEncoder" public="false">
-            <tag name="serializer.encoder" />
-        </service>
-
     </services>
 </container>
