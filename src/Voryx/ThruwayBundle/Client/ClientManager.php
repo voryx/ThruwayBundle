@@ -32,10 +32,11 @@ class ClientManager
      * @param Container $container
      * @param $config
      */
-    public function __construct(Container $container, $config)
+    public function __construct(Container $container, $config, Serializer $serializer)
     {
         $this->container  = $container;
         $this->config     = $config;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -50,8 +51,8 @@ class ClientManager
     {
         $arguments   = $arguments ?: [$arguments];
         $argumentsKw = $argumentsKw ?: [$argumentsKw];
-        $arguments   = $this->serializer->serialize($arguments, 'array');
-        $argumentsKw = $this->serializer->serialize($argumentsKw, 'array');
+        $arguments   = $this->serializer->normalize($arguments);
+        $argumentsKw = $this->serializer->normalize($argumentsKw);
 
         //If we already have a client open that we can use, use that
         if ($this->container->initialized('wamp_kernel') && $client = $this->container->get('wamp_kernel')->getClient()) {
@@ -102,8 +103,8 @@ class ClientManager
     {
         $arguments   = $arguments ?: [$arguments];
         $argumentsKw = $argumentsKw ?: [$argumentsKw];
-        $arguments   = $this->serializer->serialize($arguments, 'array');
-        $argumentsKw = $this->serializer->serialize($argumentsKw, 'array');
+        $arguments   = $this->serializer->normalize($arguments);
+        $argumentsKw = $this->serializer->normalize($argumentsKw);
 
         //If we already have a client open that we can use, use that
         if ($this->container->initialized('wamp_kernel') && $client = $this->container->get('wamp_kernel')->getClient()) {
