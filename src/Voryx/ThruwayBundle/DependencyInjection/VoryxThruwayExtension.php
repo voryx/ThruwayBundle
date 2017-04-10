@@ -93,11 +93,11 @@ class VoryxThruwayExtension extends Extension
               ->addMethodCall('registerModule', [new Reference('voryx.thruway.authentication.manager')]);
         }
 
-		
+
         if (isset($config['router']['authorization']) && $config['router']['authorization'] !== false) {
             $authId = $config['router']['authorization'];
             $container->getDefinition('voryx.thruway.server')
-                ->addMethodCall('setAuthorizationManager', [new Reference($authId)]);
+                ->addMethodCall('registerModule', [new Reference($authId)]);
         }
 
         if ($container->hasDefinition('security.user.provider.concrete.in_memory')) {
