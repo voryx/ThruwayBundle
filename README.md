@@ -107,40 +107,67 @@ The WAMP-CRA service is already configured, we just need to add a tag to it to h
 
 You can set your own Authorization Manager in order to check if a user (identified by its authid) is allowed to publish | subscribe | call | register
 
-Create your Authorization Manager service, implementing AuthorizationManagerInterface (see the Thruway doc for details)
+Create your Authorization Manager service, extending RouterModuleClient and implementing RealmModuleInterface (see the Thruway doc for details)
 
 ```php
 // src/ACME/AppBundle/Security/MyAuthorizationManager.php
 
 
-use Thruway\Authentication\AuthorizationManagerInterface;
-use Thruway\Message\ActionMessageInterface;
-use Thruway\Message\SubscribeMessage;
-use Thruway\Session;
+use Thruway\Event\MessageEvent;
+use Thruway\Event\NewRealmEvent;
+use Thruway\Module\RealmModuleInterface;
+use Thruway\Module\RouterModuleClient;
 
-class MyAuthorizationManager implements AuthorizationManagerInterface
+class MyAuthorizationManager extends RouterModuleClient implements RealmModuleInterface
 {
-    public function isAuthorizedTo(Session $session, ActionMessageInterface $actionMsg)
+    /**
+     * Listen for Router events.
+     * Required to add the authorization module to the realm
+     *
+     * @return array
+     */
+    public static function getSubscribedEvents()
     {
-        // set here the type of Action you want to check
-        // Here it's only Subscribe
-        if ($actionMsg instanceof  SubscribeMessage) {
-            // Here your own auth rule
-            $topic = $actionMsg->getTopicName();
-            /* In this example sub patterns meet the following :
-             * {userID}.{name}
-             * we explode the topic name to get the userID
-             */
-             $topic = explode('.', $topic);
-            if(is_integer($topic[0])){
-                  // UserID shall meet AuthID, else deny access
-                  if($topic[0] != $session->getMetaInfo()["authid"]){
-                        return false;
-                  }
-            }
+        return [
+            'new_realm' => ['handleNewRealm', 10]
+        ];
+    }
 
+    /**
+     * @param NewRealmEvent $newRealmEvent
+     */
+    public function handleNewRealm(NewRealmEvent $newRealmEvent)
+    {
+        $realm = $newRealmEvent->realm;
+
+        if ($realm->getRealmName() === $this->getRealm()) {
+            $realm->addModule($this);
         }
-        return true;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSubscribedRealmEvents()
+    {
+        return [
+            'PublishMessageEvent'   => ['authorize', 100],
+            'SubscribeMessageEvent' => ['authorize', 100],
+            'RegisterMessageEvent'  => ['authorize', 100],
+            'CallMessageEvent'      => ['authorize', 100],
+        ];
+    }
+
+    /**
+     * @param MessageEvent $msg
+     * @return bool
+     */
+    public function authorize(MessageEvent $msg)
+    {
+        if ($msg->session->getAuthenticationDetails()->getAuthId() === 'username') {
+            return true;
+        }
+        return false;
     }
 }
 ```
