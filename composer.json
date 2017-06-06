@@ -34,7 +34,7 @@
     "voryx/thruway": "~0.4",
     "symfony/serializer": "^3.0",
     "react/child-process": "~0.4",
-    "symfony/event-dispatcher":"~2.0 || ~3.0"
+    "symfony/event-dispatcher":"3.3 as 2.1"
   },
   "require-dev": {
     "symfony/symfony": "2.*",
