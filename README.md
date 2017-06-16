@@ -311,17 +311,17 @@ There are two main ways to break your application apart into multiple workers.
  
 If a worker is shut down with anything other than `SIGTERM`, it will automatically be restarted.
   
-##More Commands
+## More Commands
 
-#####To see a list of running processes (workers)
+##### To see a list of running processes (workers)
      
     $ php app/console thruway:process status
     
-#####Stop a process, i.e. `default`
+##### Stop a process, i.e. `default`
 
     $ php app/console thruway:process stop default
     
-#####Start a process, i.e. `default`
+##### Start a process, i.e. `default`
     
     $ php app/console thruway:process start default
     
