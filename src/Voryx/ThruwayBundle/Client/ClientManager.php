@@ -3,6 +3,7 @@
 namespace Voryx\ThruwayBundle\Client;
 
 
+use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
 use Psr\Log\NullLogger;
 use React\Promise\Deferred;
@@ -53,7 +54,14 @@ class ClientManager
     {
         $arguments   = $arguments ?: [$arguments];
         $argumentsKw = $argumentsKw ?: [$argumentsKw];
-        $arguments   = $this->serializer->toArray($arguments);
+
+
+        $context = new SerializationContext();
+        if ($this->config['serializer']) {
+            $context->setSerializeNull($this->config['serializer']['serialize_null']);
+        }
+
+        $arguments   = $this->serializer->toArray($arguments, $context);
         $argumentsKw = $this->serializer->toArray($argumentsKw);
 
         //If we already have a client open that we can use, use that
@@ -80,10 +88,10 @@ class ClientManager
 
         $client->on("open", function (ClientSession $session, TransportInterface $transport) use ($deferrer, $topicName, $arguments, $argumentsKw, $options) {
             $session->publish($topicName, $arguments, $argumentsKw, $options)->then(
-              function () use ($deferrer, $transport) {
-                  $transport->close();
-                  $deferrer->resolve();
-              });
+                function () use ($deferrer, $transport) {
+                    $transport->close();
+                    $deferrer->resolve();
+                });
         });
 
         $client->on("error", function ($error) use ($topicName) {
@@ -123,10 +131,10 @@ class ClientManager
 
         $client->on("open", function (ClientSession $session, TransportInterface $transport) use ($deferrer, $procedureName, $arguments, $argumentsKw, $options) {
             $session->call($procedureName, $arguments, $argumentsKw, $options)->then(
-              function ($res) use ($deferrer, $transport) {
-                  $transport->close();
-                  $deferrer->resolve($res);
-              });
+                function ($res) use ($deferrer, $transport) {
+                    $transport->close();
+                    $deferrer->resolve($res);
+                });
         });
 
         $client->on("error", function ($error) use ($procedureName) {
