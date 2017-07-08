@@ -63,6 +63,7 @@ class ThruwayProcessCommand extends ContainerAwareCommand
             ->setDescription('Thruway Process Manager')
             ->setHelp("The <info>%command.name%</info> manages thruway sub processes (workers).")
             ->addOption('no-exec', null, InputOption::VALUE_NONE, 'Don\'t use "exec" command when starting processes')
+            ->addOption('quote-binary', null, InputOption::VALUE_NONE, 'Quotes PHP binary path in case it contains spaces')
             ->addArgument('action', InputArgument::REQUIRED, 'Actions: start, status')
             ->addArgument('worker', InputArgument::OPTIONAL, 'Actions for individual workers: start, stop, restart');
     }
@@ -275,6 +276,10 @@ class ThruwayProcessCommand extends ContainerAwareCommand
     {
 
         $phpBinary = PHP_BINARY;
+        if ($this->input->getOption('quote-binary')) {
+        	$phpBinary = '"' . $phpBinary . '"';
+        }
+        
         if (!$this->input->getOption('no-exec')) {
             $phpBinary = 'exec ' . $phpBinary;
         }
@@ -334,6 +339,10 @@ class ThruwayProcessCommand extends ContainerAwareCommand
     protected function addWorkers($env)
     {
         $phpBinary      = PHP_BINARY;
+        if ($this->input->getOption('quote-binary')) {
+        	$phpBinary = '"' . $phpBinary . '"';
+        }
+        
         if (!$this->input->getOption('no-exec')) {
             $phpBinary = 'exec ' . $phpBinary;
         }
