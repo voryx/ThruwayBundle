@@ -4,7 +4,6 @@ namespace Voryx\ThruwayBundle\Process;
 
 use React\EventLoop\LoopInterface;
 use React\Promise\Deferred;
-use Voryx\ThruwayBundle\Process\Process;
 
 /**
  * Class Command
@@ -112,7 +111,6 @@ class Command
         $this->autoRestart = $autoRestart;
     }
 
-
     /**
      * @return \React\ChildProcess\Process[]
      */
@@ -126,7 +124,6 @@ class Command
      */
     public function startProcess()
     {
-
         $promises = [];
 
         for ($x = 0; $x < $this->minInstances; $x++) {
@@ -144,7 +141,6 @@ class Command
         }
 
         return \React\Promise\all($promises);
-
     }
 
     /**
@@ -203,11 +199,9 @@ class Command
      */
     public function stopInstance($processNumber = 0)
     {
-
         if (isset($this->processes[$processNumber])) {
             $this->processes[$processNumber]->terminate();
         }
-
     }
 
     /**
@@ -218,7 +212,7 @@ class Command
         $promises = [];
 
         if (count($this->processes) < 1) {
-            return \React\Promise\reject("No Process to stop");
+            return \React\Promise\reject('No Process to stop');
         }
 
         foreach ($this->processes as $process) {
@@ -284,5 +278,4 @@ class Command
     {
         $this->maxInstances = $maxInstances;
     }
-
 }

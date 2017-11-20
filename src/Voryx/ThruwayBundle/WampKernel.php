@@ -256,7 +256,9 @@ class WampKernel implements HttpKernelInterface
                 $d = $d instanceof CallResult ? [$d[0]] : $d;
                 return $this->serializer->normalize($d, $context);
             });
-        } elseif ($rawResult !== null) {
+        }
+
+        if ($rawResult !== null) {
             return $this->serializer->normalize($rawResult, null, $context);
         }
     }
@@ -293,7 +295,6 @@ class WampKernel implements HttpKernelInterface
         }
     }
 
-
     /**
      * @param $controller
      * @return mixed|void
@@ -310,7 +311,6 @@ class WampKernel implements HttpKernelInterface
         $containerProperty->setAccessible(true);
 
         return $containerProperty->getValue($controller);
-
     }
 
     /**
@@ -319,7 +319,6 @@ class WampKernel implements HttpKernelInterface
      */
     protected function setControllerContainerUser($controller, $details)
     {
-
         $container = $this->getControllerContainer($controller);
 
         if (!$container) {
@@ -351,7 +350,6 @@ class WampKernel implements HttpKernelInterface
      */
     protected function setControllerContainerDetails($controller, $args, $argsKw, $details)
     {
-
         $container = $this->getControllerContainer($controller);
 
         if (!$container) {
@@ -359,7 +357,6 @@ class WampKernel implements HttpKernelInterface
         }
 
         $container->set('thruway.details', new Details($args, $argsKw, $details));
-
     }
 
     /**
@@ -425,7 +422,6 @@ class WampKernel implements HttpKernelInterface
             $params = $mapping->getmethod()->getParameters();
 
             foreach ($args as $key => $arg) {
-
                 $className = null;
                 if (isset($params[$key]) && $params[$key]->getClass() && $params[$key]->getClass()->getName()) {
                     if (!$params[$key]->getClass()->isInstantiable()) {
@@ -442,14 +438,12 @@ class WampKernel implements HttpKernelInterface
                 } else {
                     $deserializedArgs[] = $arg;
                 }
-
             }
 
             return $deserializedArgs;
 
         } catch (\Exception $e) {
             $this->logger->emergency($e->getMessage());
-
         }
 
         return [];
@@ -506,30 +500,23 @@ class WampKernel implements HttpKernelInterface
      */
     private function cleanup($controller = null)
     {
-
         //Do some doctrine cleanup on the controller container.
         $controllerContainer = $this->getControllerContainer($controller);
 
         if ($controllerContainer && $controllerContainer->has('doctrine')) {
             if (!$controllerContainer->get('doctrine')->getManager()->isOpen()) {
                 $controllerContainer->get('doctrine')->resetManager();
-
             }
             $controllerContainer->get('doctrine')->getManager()->clear();
-
 
             //Close any open doctrine connections
             /** @var Connection[] $connections */
             $connections = $controllerContainer->get('doctrine')->getConnections();
 
             foreach ($connections as $connection) {
-
                 $connection->close();
             }
-
         }
-
-        unset ($controller);
 
         //Clear out any stuff that doctrine has cached
         if ($this->container->has('doctrine')) {
@@ -543,7 +530,6 @@ class WampKernel implements HttpKernelInterface
             }
             $this->container->get('doctrine')->getManager()->clear();
         }
-
     }
 
     /**
@@ -558,22 +544,22 @@ class WampKernel implements HttpKernelInterface
         $roles = $this->extractRoles($mapping);
 
         foreach ($roles as $role) {
-
-            $this->session->call("add_authorization_rule", [
-                [
-                    "role"   => $role,
-                    "action" => $action,
-                    "uri"    => $uri,
-                    "allow"  => true
-                ]
-            ])->then(
-                function ($r) {
-                    echo "Sent authorization\n";
-                },
-                function ($msg) {
-                    echo "Failed to send authorization\n";
-                }
-            );
+            $this->session
+                ->call('add_authorization_rule', [
+                    [
+                        'role'   => $role,
+                        'action' => $action,
+                        'uri'    => $uri,
+                        'allow'  => true
+                    ]
+                ])
+                ->then(
+                    function ($r) {
+                        echo "Sent authorization\n";
+                    },
+                    function ($msg) {
+                        echo "Failed to send authorization\n";
+                    });
         }
     }
 

@@ -2,7 +2,6 @@
 
 namespace Voryx\ThruwayBundle\Process;
 
-
 use React\EventLoop\LoopInterface;
 
 /**
@@ -114,5 +113,4 @@ class Process extends \React\ChildProcess\Process
     {
         $this->autoRestart = $autoRestart;
     }
-
 }

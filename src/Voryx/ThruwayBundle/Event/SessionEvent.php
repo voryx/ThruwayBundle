@@ -2,7 +2,6 @@
 
 namespace Voryx\ThruwayBundle\Event;
 
-
 use Symfony\Component\EventDispatcher\Event;
 use Thruway\ClientSession;
 use Thruway\Transport\TransportInterface;
@@ -45,7 +44,7 @@ class SessionEvent extends Event
      * @param $processInstance
      * @param $resourceMappings
      */
-    function __construct(ClientSession $session, TransportInterface $transport, $processName, $processInstance, $resourceMappings)
+    public function __construct(ClientSession $session, TransportInterface $transport, $processName, $processInstance, $resourceMappings)
     {
         $this->session          = $session;
         $this->transport        = $transport;
@@ -93,5 +92,4 @@ class SessionEvent extends Event
     {
         return $this->resourceMappings;
     }
-
 }

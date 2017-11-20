@@ -2,7 +2,6 @@
 
 namespace Voryx\ThruwayBundle\DependencyInjection\Compiler;
 
-
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -10,14 +9,12 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-
 /**
  * Class AnnotationConfigurationPass
  * @package Voryx\ThruwayBundle\DependencyInjection\Compiler
  */
 class AnnotationConfigurationPass implements CompilerPassInterface
 {
-
     /**
      * @var KernelInterface
      */
@@ -37,10 +34,10 @@ class AnnotationConfigurationPass implements CompilerPassInterface
      * @param ContainerBuilder $container
      *
      * @api
+     * @throws \Exception
      */
     public function process(ContainerBuilder $container)
     {
-
         $config      = $container->getParameter('voryx_thruway');
         $bundleFiles = $this->getBundleFiles($container);
         $files       = $config['locations']['files'] + $bundleFiles;

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Voryx\ThruwayBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;

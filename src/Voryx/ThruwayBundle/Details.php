@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Voryx\ThruwayBundle;
-
 
 class Details
 {
@@ -10,7 +8,7 @@ class Details
     protected $argsKw;
     protected $details;
 
-    function __construct($args = [], $argsKw = null, $details = null)
+    public function __construct($args = [], $argsKw = null, $details = null)
     {
         $this->args    = $args;
         $this->argsKw  = $argsKw;
@@ -40,6 +38,4 @@ class Details
     {
         return $this->details;
     }
-
-
 }

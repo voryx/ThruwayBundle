@@ -2,7 +2,6 @@
 
 namespace Voryx\ThruwayBundle\Command;
 
-
 use Symfony\Component\Console\Input\InputArgument;
 use Thruway\Peer\Client;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -20,7 +19,7 @@ class ThruwayWorkerCommand extends ContainerAwareCommand
         $this
             ->setName('thruway:worker:start')
             ->setDescription('Start Thruway WAMP worker')
-            ->setHelp("The <info>%command.name%</info> starts the Thruway WAMP client.")
+            ->setHelp('The <info>%command.name%</info> starts the Thruway WAMP client.')
             ->addArgument('name', InputArgument::REQUIRED, 'The name of the worker you\'re starting')
             ->addArgument('instance', InputArgument::OPTIONAL, 'Worker instance number', 0);
     }
@@ -61,8 +60,8 @@ class ThruwayWorkerCommand extends ContainerAwareCommand
 
         } catch (\Exception $e) {
             $logger = $this->getContainer()->get('logger');
-            $logger->addCritical("EXCEPTION:" . $e->getMessage());
-            $output->writeln("EXCEPTION:" . $e->getMessage());
+            $logger->addCritical('EXCEPTION:' . $e->getMessage());
+            $output->writeln('EXCEPTION:' . $e->getMessage());
         }
     }
 }

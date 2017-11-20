@@ -1,11 +1,8 @@
 <?php
 
-
 namespace Voryx\ThruwayBundle\Command;
 
-
 use Psr\Log\NullLogger;
-use React\Promise\Deferred;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -17,7 +14,6 @@ use Thruway\Logging\Logger;
 use Thruway\Transport\PawlTransportProvider;
 use Voryx\ThruwayBundle\Process\Command;
 use Voryx\ThruwayBundle\Process\ProcessManager;
-
 
 /**
  * Class ThruwayProcessCommand
@@ -61,12 +57,11 @@ class ThruwayProcessCommand extends ContainerAwareCommand
             ->setName('thruway:process')
             ->setAliases(['tp'])
             ->setDescription('Thruway Process Manager')
-            ->setHelp("The <info>%command.name%</info> manages thruway sub processes (workers).")
+            ->setHelp('The <info>%command.name%</info> manages thruway sub processes (workers).')
             ->addOption('no-exec', null, InputOption::VALUE_NONE, 'Don\'t use "exec" command when starting processes')
             ->addArgument('action', InputArgument::REQUIRED, 'Actions: start, status')
             ->addArgument('worker', InputArgument::OPTIONAL, 'Actions for individual workers: start, stop, restart');
     }
-
 
     /**
      * {@inheritdoc}
@@ -80,27 +75,25 @@ class ThruwayProcessCommand extends ContainerAwareCommand
         $this->config = $this->getContainer()->getParameter('voryx_thruway');
 
         switch ($input->getArgument('action')) {
-            case "start":
+            case 'start':
                 $this->start();
                 break;
-            case "stop":
+            case 'stop':
                 $this->stop();
                 break;
-            case "restart":
+            case 'restart':
                 $this->restart();
                 break;
-            case "status":
+            case 'status':
                 $this->status();
                 break;
-            case "add":
+            case 'add':
                 $this->add();
                 break;
             default:
-                $output->writeln("Expected an action: start, stop, status");
+                $output->writeln('Expected an action: start, stop, status');
         }
-
     }
-
 
     /**
      * Configure and start the workers
@@ -108,7 +101,6 @@ class ThruwayProcessCommand extends ContainerAwareCommand
      */
     protected function start()
     {
-
         $appCmd = "{$this->getContainer()->get('kernel')->getRootDir()}/console";
         $binCmd = "{$this->getContainer()->get('kernel')->getRootDir()}/../bin/console";
 
@@ -128,14 +120,13 @@ class ThruwayProcessCommand extends ContainerAwareCommand
     private function startManager()
     {
         try {
-
             $env  = $this->getContainer()->get('kernel')->getEnvironment();
             $loop = $this->getContainer()->get('voryx.thruway.loop');
 
             $this->processManager = new ProcessManager("process_manager", $loop, $this->getContainer());
             $this->processManager->addTransportProvider(new PawlTransportProvider($this->config['trusted_url']));
 
-            $this->output->writeln("Starting Thruway Workers...");
+            $this->output->writeln('Starting Thruway Workers...');
             $this->output->writeln("The environment is: {$env}");
 
             //Add processes for Symfony Command Workers
@@ -147,14 +138,14 @@ class ThruwayProcessCommand extends ContainerAwareCommand
             //Add processes for regular Workers defined by annotations
             $this->addWorkers($env);
 
-            $this->output->writeln("Done");
+            $this->output->writeln('Done');
 
             $this->processManager->start();
 
         } catch (\Exception $e) {
             $logger = $this->getContainer()->get('logger');
-            $logger->addCritical("EXCEPTION:" . $e->getMessage());
-            $this->output->writeln("EXCEPTION:" . $e->getMessage());
+            $logger->addCritical('EXCEPTION:' . $e->getMessage());
+            $this->output->writeln('EXCEPTION:' . $e->getMessage());
         }
     }
 
@@ -211,7 +202,6 @@ class ThruwayProcessCommand extends ContainerAwareCommand
         $this->call('stop_process', [$worker]);
     }
 
-
     /**
      *
      */
@@ -239,17 +229,17 @@ class ThruwayProcessCommand extends ContainerAwareCommand
 
         foreach ($statuses as $status) {
 
-            $uptime = "Not Started";
-            if (isset($status->started_at) && $status->status === "RUNNING") {
-                $uptime = "up since " . date("l F jS \@ g:i:s a", $status->started_at);
+            $uptime = 'Not Started';
+            if (isset($status->started_at) && $status->status === 'RUNNING') {
+                $uptime = 'up since ' . date("l F jS \@ g:i:s a", $status->started_at);
             }
 
             $pid = null;
-            if (isset($status->pid) && $status->status === "RUNNING") {
+            if (isset($status->pid) && $status->status === 'RUNNING') {
                 $pid = "pid {$status->pid}";
             }
 
-            $this->output->writeln(sprintf("%-25s %-3s %-10s %s, %s ", $status->name, $status->process_number, $status->status,
+            $this->output->writeln(sprintf('%-25s %-3s %-10s %s, %s ', $status->name, $status->process_number, $status->status,
                 $pid, $uptime));
         }
     }
@@ -264,16 +254,15 @@ class ThruwayProcessCommand extends ContainerAwareCommand
         }
         $worker = $this->input->getArgument('worker');
         $this->call('add_instance', [$worker]);
-
     }
 
     /**
      * Add symfony command workers.  These are workers that will only ever have one instance running
      * @param $env
+     * @throws \Exception
      */
     protected function addSymfonyCmdWorkers($env)
     {
-
         $phpBinary = PHP_BINARY;
         if (!$this->input->getOption('no-exec')) {
             $phpBinary = 'exec ' . $phpBinary;
@@ -281,7 +270,7 @@ class ThruwayProcessCommand extends ContainerAwareCommand
 
         //Default Symfony Command Workers
         $defaultWorkers = [
-            "router" => "thruway:router:start"
+            'router' => 'thruway:router:start'
         ];
 
         $onetimeWorkers = array_merge($defaultWorkers, $this->config['workers']['symfony_commands']);
@@ -298,17 +287,15 @@ class ThruwayProcessCommand extends ContainerAwareCommand
             $command = new Command($workerName, $cmd);
 
             $this->processManager->addCommand($command);
-
         }
     }
 
-
     /**
      * Add regular shell command workers.
+     * @throws \Exception
      */
     protected function addShellCmdWorkers()
     {
-
         $shellWorkers = $this->config['workers']['shell_commands'];
 
         foreach ($shellWorkers as $workerName => $command) {
@@ -321,7 +308,6 @@ class ThruwayProcessCommand extends ContainerAwareCommand
             $command = new Command($workerName, $command);
 
             $this->processManager->addCommand($command);
-
         }
     }
 
@@ -330,10 +316,11 @@ class ThruwayProcessCommand extends ContainerAwareCommand
      * Add regular workers.  Theses are workers that can have multiple instances running
      *
      * @param $env
+     * @throws \Exception
      */
     protected function addWorkers($env)
     {
-        $phpBinary      = PHP_BINARY;
+        $phpBinary = PHP_BINARY;
         if (!$this->input->getOption('no-exec')) {
             $phpBinary = 'exec ' . $phpBinary;
         }
@@ -350,7 +337,6 @@ class ThruwayProcessCommand extends ContainerAwareCommand
 
             $command->setMaxInstances($numprocs);
             $this->processManager->addCommand($command);
-
         }
     }
 }

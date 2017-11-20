@@ -76,7 +76,7 @@ class ClientManager
         $options->acknowledge = true;
         $deferrer             = new Deferred();
 
-        $client->on("open", function (ClientSession $session, TransportInterface $transport) use ($deferrer, $topicName, $arguments, $argumentsKw, $options) {
+        $client->on('open', function (ClientSession $session, TransportInterface $transport) use ($deferrer, $topicName, $arguments, $argumentsKw, $options) {
             $session->publish($topicName, $arguments, $argumentsKw, $options)->then(
                 function () use ($deferrer, $transport) {
                     $transport->close();
@@ -84,7 +84,7 @@ class ClientManager
                 });
         });
 
-        $client->on("error", function ($error) use ($topicName) {
+        $client->on('error', function ($error) use ($topicName) {
             $this->container->get('logger')->addError("Got the following error when trying to publish to '{$topicName}': {$error}");
         });
 
@@ -96,6 +96,8 @@ class ClientManager
     /**
      * @param $procedureName
      * @param $arguments
+     * @param array $argumentsKw
+     * @param null $options
      * @return \React\Promise\Promise
      * @throws \Exception
      */
@@ -119,7 +121,7 @@ class ClientManager
         $client   = $this->getShortClient();
         $deferrer = new Deferred();
 
-        $client->on("open", function (ClientSession $session, TransportInterface $transport) use ($deferrer, $procedureName, $arguments, $argumentsKw, $options) {
+        $client->on('open', function (ClientSession $session, TransportInterface $transport) use ($deferrer, $procedureName, $arguments, $argumentsKw, $options) {
             $session->call($procedureName, $arguments, $argumentsKw, $options)->then(
                 function ($res) use ($deferrer, $transport) {
                     $transport->close();
@@ -127,7 +129,7 @@ class ClientManager
                 });
         });
 
-        $client->on("error", function ($error) use ($procedureName) {
+        $client->on('error', function ($error) use ($procedureName) {
             $this->container->get('logger')->addError("Got the following error when trying to call '{$procedureName}': {$error}");
             throw new \Exception("Got the following error when trying to call '{$procedureName}': {$error}");
         });

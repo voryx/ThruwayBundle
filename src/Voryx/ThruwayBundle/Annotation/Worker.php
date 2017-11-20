@@ -36,7 +36,6 @@ class Worker implements AnnotationInterface
      */
     public function __construct($options)
     {
-
         foreach ($options as $key => $value) {
             if (!property_exists($this, $key)) {
                 throw new \InvalidArgumentException(
@@ -45,7 +44,6 @@ class Worker implements AnnotationInterface
             }
             $this->$key = $value;
         }
-
     }
 
     /**
@@ -79,7 +77,6 @@ class Worker implements AnnotationInterface
     {
         return $this->url;
     }
-
 
     /**
      * @return mixed

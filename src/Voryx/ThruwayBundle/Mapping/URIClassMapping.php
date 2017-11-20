@@ -42,7 +42,7 @@ class URIClassMapping implements MappingInterface
      * @param \ReflectionMethod $method
      * @param AnnotationInterface $annotation
      */
-    function __construct($serviceId = null, \ReflectionMethod $method = null, AnnotationInterface $annotation = null)
+    public function __construct($serviceId = null, \ReflectionMethod $method = null, AnnotationInterface $annotation = null)
     {
         $this->serviceId  = $serviceId;
         $this->method     = $method;
@@ -87,7 +87,7 @@ class URIClassMapping implements MappingInterface
     }
 
     /**
-     * @return boolean|void
+     * @return boolean
      */
     public function isActive()
     {
@@ -133,6 +133,4 @@ class URIClassMapping implements MappingInterface
     {
         $this->securityAnnotation = $securityAnnotation;
     }
-
-
 }

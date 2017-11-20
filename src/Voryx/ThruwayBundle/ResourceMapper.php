@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Voryx\ThruwayBundle;
-
 
 use Doctrine\Common\Annotations\Reader;
 use Symfony\Component\Config\Definition\Exception\Exception;
@@ -15,7 +13,6 @@ use Voryx\ThruwayBundle\Mapping\URIClassMapping;
  */
 class ResourceMapper
 {
-
     const REGISTER_ANNOTATION_CLASS = 'Voryx\\ThruwayBundle\\Annotation\\Register';
     const SUBSCRIBE_ANNOTATION_CLASS = 'Voryx\\ThruwayBundle\\Annotation\\Subscribe';
     const WORKER_ANNOTATION_CLASS = 'Voryx\\ThruwayBundle\\Annotation\\Worker';
@@ -45,11 +42,10 @@ class ResourceMapper
     /**
      * @param Reader $reader
      */
-    function __construct(Reader $reader)
+    public function __construct(Reader $reader)
     {
         $this->reader = $reader;
     }
-
 
     /**
      * @param $serviceId
@@ -58,7 +54,6 @@ class ResourceMapper
      */
     public function map($serviceId, $class, $method)
     {
-
         $class  = new \ReflectionClass($class);
         $method = $class->getMethod($method);
 
@@ -71,7 +66,7 @@ class ResourceMapper
         foreach ($annotations as $annotation) {
             if ($annotation) {
 
-                /* @var $workerAnnotation Register  */
+                /* @var $workerAnnotation Register */
                 $workerAnnotation = isset($this->workerAnnotationsClasses[$class->getName()]) ? $this->workerAnnotationsClasses[$class->getName()] : null;
 
                 if ($workerAnnotation) {
@@ -95,17 +90,13 @@ class ResourceMapper
                 $this->mappings[$worker][$annotation->getName()] = $mapping;
             }
         }
-
-
     }
-
 
     /**
      * @param $class
      */
     public function setWorkerAnnotation($class)
     {
-
         $class      = new \ReflectionClass($class);
         $annotation = $this->reader->getClassAnnotation($class, self::WORKER_ANNOTATION_CLASS);
 
@@ -120,7 +111,6 @@ class ResourceMapper
             $this->workerAnnotations[$worker]                  = $annotation;
             $this->workerAnnotationsClasses[$class->getName()] = $annotation;
         }
-
     }
 
     /**
@@ -211,5 +201,4 @@ class ResourceMapper
     {
         return isset($this->workerAnnotations[$workerName]) ? $this->workerAnnotations[$workerName] : false;
     }
-
 }

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Voryx\ThruwayBundle\Command;
-
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +17,7 @@ class ThruwayRouterCommand extends ContainerAwareCommand
         $this
             ->setName('thruway:router:start')
             ->setDescription('Start the default Thruway WAMP router')
-            ->setHelp("The <info>%command.name%</info> starts the Thruway WAMP router.");
+            ->setHelp('The <info>%command.name%</info> starts the Thruway WAMP router.');
     }
 
     /**
@@ -27,10 +25,8 @@ class ThruwayRouterCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
         try {
-
-            $output->writeln("Making a go at starting the Thruway Router");
+            $output->writeln('Making a go at starting the Thruway Router');
 
             //Configure stuff
             $config = $this->getContainer()->getParameter('voryx_thruway');
@@ -47,8 +43,8 @@ class ThruwayRouterCommand extends ContainerAwareCommand
 
         } catch (\Exception $e) {
             $logger = $this->getContainer()->get('logger');
-            $logger->addCritical("EXCEPTION:" . $e->getMessage());
-            $output->writeln("EXCEPTION:" . $e->getMessage());
+            $logger->addCritical('EXCEPTION:' . $e->getMessage());
+            $output->writeln('EXCEPTION:' . $e->getMessage());
         }
     }
 }

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Voryx\ThruwayBundle\Authentication;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -9,15 +8,12 @@ use Thruway\Logging\Logger;
 
 class UserDB implements WampCraUserDbInterface
 {
-
-
     private $container;
 
-    function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
     }
-
 
     /**
      * This should take a authid string as the argument and return
@@ -43,7 +39,7 @@ class UserDB implements WampCraUserDbInterface
                 throw new \Exception("Can't log in, bad credentials");
             }
 
-            return ["user" => $user->getUsername(), "key" => $user->getPassword(), "salt" => $user->getSalt()];
+            return ['user' => $user->getUsername(), 'key' => $user->getPassword(), 'salt' => $user->getSalt()];
 
         } catch (\Exception $e) {
 

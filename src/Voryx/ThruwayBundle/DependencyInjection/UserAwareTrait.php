@@ -4,7 +4,6 @@ namespace Voryx\ThruwayBundle\DependencyInjection;
 
 use Symfony\Component\Security\Core\User\UserInterface;
 
-
 /**
  * @deprecated
  * Class UserAware

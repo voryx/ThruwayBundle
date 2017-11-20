@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Voryx\ThruwayBundle\Process;
-
 
 use React\Promise\Deferred;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -16,7 +14,6 @@ use Thruway\Transport\PawlTransportProvider;
  */
 class ProcessManager extends Client
 {
-
     /**
      * @var Command[]
      */
@@ -37,6 +34,7 @@ class ProcessManager extends Client
      *
      * @param \Thruway\ClientSession $session
      * @param \Thruway\Transport\TransportInterface $transport
+     * @throws \Exception
      */
     public function onSessionStart($session, $transport)
     {
@@ -55,13 +53,11 @@ class ProcessManager extends Client
         $congestionManager->addTransportProvider(new PawlTransportProvider($config['trusted_url']));
 
         $congestionManager->on('open', function (ClientSession $session) {
-            $session->subscribe("thruway.metaevent.procedure.congestion", [$this, "onCongestion"]);
+            $session->subscribe('thruway.metaevent.procedure.congestion', [$this, 'onCongestion']);
         });
 
         $congestionManager->start(false);
-
     }
-
 
     /**
      * @param Command $command
@@ -72,7 +68,6 @@ class ProcessManager extends Client
         $this->commands[$command->getName()] = $command;
         $command->setLoop($this->getLoop());
         $command->startProcess();
-
     }
 
     /**
@@ -120,12 +115,12 @@ class ProcessManager extends Client
         }
 
         return [$status];
-
     }
 
     /**
      * @param $args
      * @return \React\Promise\Promise
+     * @throws \Exception
      */
     public function startProcess($args)
     {
@@ -166,7 +161,6 @@ class ProcessManager extends Client
      */
     public function restartProcess($args)
     {
-
         $name = $args[0];
 
         if (isset($this->commands[$name])) {
@@ -176,8 +170,7 @@ class ProcessManager extends Client
                     echo "Started all process instances for {$name}" . PHP_EOL;
                 });
             });
-
-        };
+        }
     }
 
     /**
@@ -202,6 +195,5 @@ class ProcessManager extends Client
         }
 
         $this->commands[$worker]->addInstance();
-
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Voryx\ThruwayBundle;
 
-
 use Thruway\Logging\Logger;
 use Thruway\Message\ErrorMessage;
 use Voryx\ThruwayBundle\Annotation\Register;
@@ -43,7 +42,7 @@ class TopicStateHandler
             //Register Topic Handlers
             $registration->topic = $topicStateHandler;
             $session->call('add_state_handler', [$registration])->then(
-                function ($res) use ($annotation){
+                function ($res) use ($annotation) {
                     Logger::info($this,
                         "Registered topic handler RPC: '{$annotation->getName()}'' for topic: '{$annotation->getTopicStateHandlerFor()}'"
                     );
@@ -53,8 +52,6 @@ class TopicStateHandler
                         "Unable to register topic handler RPC: '{$annotation->getName()}'' for topic: '{$annotation->getTopicStateHandlerFor()}'' Error: '{$error->getErrorURI()}''"
                     );
                 });
-
         }
-
     }
 }

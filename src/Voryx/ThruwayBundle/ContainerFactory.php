@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Voryx\ThruwayBundle;
-
 
 use React\EventLoop\LoopInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Voryx\ThruwayBundle;
 
 /**
@@ -18,5 +17,4 @@ final class WampEvents
      *
      */
     const OPEN = 'wamp.open';
-
 }
