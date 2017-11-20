@@ -2,11 +2,10 @@
 
 namespace Voryx\ThruwayBundle\Client;
 
-
-use JMS\Serializer\Serializer;
 use Psr\Log\NullLogger;
 use React\Promise\Deferred;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\Serializer\Serializer;
 use Thruway\ClientSession;
 use Thruway\Logging\Logger;
 use Thruway\Peer\Client;
@@ -19,7 +18,6 @@ use Thruway\Transport\TransportInterface;
  */
 class ClientManager
 {
-
     /* @var Container */
     private $container;
 
@@ -33,9 +31,8 @@ class ClientManager
     /**
      * @param Container $container
      * @param $config
-     * @param Serializer $serializer
      */
-    function __construct(Container $container, $config, Serializer $serializer)
+    public function __construct(Container $container, $config, Serializer $serializer)
     {
         $this->container  = $container;
         $this->config     = $config;
@@ -46,15 +43,16 @@ class ClientManager
      * @param $topicName
      * @param $arguments
      * @param array|null $argumentsKw
-     * @param null $options
+     * @param null|array|Object $options
      * @return \React\Promise\Promise
+     * @throws \Exception
      */
-    public function publish($topicName, $arguments, $argumentsKw = [], $options = null)
+    public function publish($topicName, $arguments, array $argumentsKw = [], $options = null)
     {
         $arguments   = $arguments ?: [$arguments];
         $argumentsKw = $argumentsKw ?: [$argumentsKw];
-        $arguments   = $this->serializer->toArray($arguments);
-        $argumentsKw = $this->serializer->toArray($argumentsKw);
+        $arguments   = $this->serializer->normalize($arguments);
+        $argumentsKw = $this->serializer->normalize($argumentsKw);
 
         //If we already have a client open that we can use, use that
         if ($this->container->initialized('wamp_kernel') && $client = $this->container->get('wamp_kernel')->getClient()) {
@@ -64,11 +62,11 @@ class ClientManager
         }
 
         if (is_array($options)) {
-            $options = (object) $options;
+            $options = (object)$options;
         }
 
         if (!is_object($options)) {
-            $options = (object) [];
+            $options = (object)[];
         }
 
         Logger::set(new NullLogger()); //So logs don't show up on the web page
@@ -80,10 +78,10 @@ class ClientManager
 
         $client->on("open", function (ClientSession $session, TransportInterface $transport) use ($deferrer, $topicName, $arguments, $argumentsKw, $options) {
             $session->publish($topicName, $arguments, $argumentsKw, $options)->then(
-              function () use ($deferrer, $transport) {
-                  $transport->close();
-                  $deferrer->resolve();
-              });
+                function () use ($deferrer, $transport) {
+                    $transport->close();
+                    $deferrer->resolve();
+                });
         });
 
         $client->on("error", function ($error) use ($topicName) {
@@ -93,20 +91,20 @@ class ClientManager
         $client->start();
 
         return $deferrer->promise();
-
     }
 
     /**
      * @param $procedureName
      * @param $arguments
      * @return \React\Promise\Promise
+     * @throws \Exception
      */
     public function call($procedureName, $arguments, $argumentsKw = [], $options = null)
     {
         $arguments   = $arguments ?: [$arguments];
         $argumentsKw = $argumentsKw ?: [$argumentsKw];
-        $arguments   = $this->serializer->toArray($arguments);
-        $argumentsKw = $this->serializer->toArray($argumentsKw);
+        $arguments   = $this->serializer->normalize($arguments);
+        $argumentsKw = $this->serializer->normalize($argumentsKw);
 
         //If we already have a client open that we can use, use that
         if ($this->container->initialized('wamp_kernel') && $client = $this->container->get('wamp_kernel')->getClient()) {
@@ -123,10 +121,10 @@ class ClientManager
 
         $client->on("open", function (ClientSession $session, TransportInterface $transport) use ($deferrer, $procedureName, $arguments, $argumentsKw, $options) {
             $session->call($procedureName, $arguments, $argumentsKw, $options)->then(
-              function ($res) use ($deferrer, $transport) {
-                  $transport->close();
-                  $deferrer->resolve($res);
-              });
+                function ($res) use ($deferrer, $transport) {
+                    $transport->close();
+                    $deferrer->resolve($res);
+                });
         });
 
         $client->on("error", function ($error) use ($procedureName) {
@@ -137,9 +135,7 @@ class ClientManager
         $client->start();
 
         return $deferrer->promise();
-
     }
-
 
     /**
      * @return Client
@@ -147,12 +143,10 @@ class ClientManager
      */
     private function getShortClient()
     {
-
         $client = new Client($this->config['realm']);
         $client->setAttemptRetry(false);
         $client->addTransportProvider(new PawlTransportProvider($this->config['trusted_url']));
 
         return $client;
-
     }
 }

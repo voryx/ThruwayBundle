@@ -3,20 +3,17 @@
 namespace Voryx\ThruwayBundle;
 
 use Doctrine\DBAL\Driver\Connection;
-use JMS\Serializer\SerializationContext;
-use JMS\Serializer\Serializer;
 use Psr\Log\LoggerInterface;
 use React\Promise\Promise;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\User;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Serializer;
 use Thruway\CallResult;
 use Thruway\ClientSession;
 use Thruway\Peer\Client;
@@ -34,7 +31,6 @@ use Voryx\ThruwayBundle\Mapping\URIClassMapping;
  */
 class WampKernel implements HttpKernelInterface
 {
-
     /* @var $session ClientSession */
     private $session;
 
@@ -78,15 +74,21 @@ class WampKernel implements HttpKernelInterface
      */
     private $processInstance;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * @param ContainerInterface $container
      * @param Serializer $serializer
      * @param ResourceMapper $resourceMapper
+     * @param EventDispatcherInterface $dispatcher
+     * @param LoggerInterface $logger
      */
-    function __construct(
+    public function __construct(
         ContainerInterface $container,
-        Serializer $serializer,
+        Serializer $serializer = null,
         ResourceMapper $resourceMapper,
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger
@@ -163,23 +165,21 @@ class WampKernel implements HttpKernelInterface
         //RPC Options
         $callOptions = [
             'disclose_caller'          => $discloseCaller,
-            "thruway_multiregister"    => $multiRegister,
-            "replace_orphaned_session" => $annotation->getReplaceOrphanedSession()
+            'thruway_multiregister'    => $multiRegister,
+            'replace_orphaned_session' => $annotation->getReplaceOrphanedSession()
         ];
 
         //RPC Callback
         $rpcCallback = function ($args, $kwargs, $details) use ($mapping) {
             $rawResult = $this->handleRPC($args, $kwargs, $details, $mapping);
 
-            //Run the results through JMS serializer
-            //@todo, make this step optional
+            //Run the results through serializer
             return $this->serializeResult($rawResult, $mapping);
         };
 
         //Register the RPC Call
         $this->session->register($annotation->getName(), $rpcCallback, $callOptions)->then($registerCallback);
     }
-
 
     /**
      * Handle the RPC
@@ -213,7 +213,6 @@ class WampKernel implements HttpKernelInterface
 
             return $rawResult;
 
-
         } catch (\Exception $e) {
             $this->cleanup();
             $message = "Unable to make the call: {$mapping->getAnnotation()->getName()} \n Message:  {$e->getMessage()}";
@@ -244,22 +243,21 @@ class WampKernel implements HttpKernelInterface
      *
      * @param $rawResult
      * @param $mapping
-     * @return mixed|static
+     * @return mixed|Promise
      */
     protected function serializeResult($rawResult, $mapping)
     {
         //Create a serialization context
         $context = $this->createSerializationContext($mapping);
 
-
         if ($rawResult instanceof Promise) {
             return $rawResult->then(function ($d) use ($context) {
                 //If the data is a CallResult, we only want to serialize the first argument
                 $d = $d instanceof CallResult ? [$d[0]] : $d;
-                return $this->serializer->toArray($d, $context);
+                return $this->serializer->normalize($d, $context);
             });
         } elseif ($rawResult !== null) {
-            return $this->serializer->toArray($rawResult, $context);
+            return $this->serializer->normalize($rawResult, null, $context);
         }
     }
 
@@ -328,7 +326,7 @@ class WampKernel implements HttpKernelInterface
             return;
         }
 
-        if (!isset($details->authid)){
+        if (!isset($details->authid)) {
             return;
         }
 
@@ -368,22 +366,21 @@ class WampKernel implements HttpKernelInterface
      * Create serialization context with settings taken from the controller's annotation
      *
      * @param MappingInterface $mapping
-     * @return SerializationContext
+     * @return array
      */
     protected function createSerializationContext(MappingInterface $mapping)
     {
-        $context = new SerializationContext();
-
+        $context = [];
         if ($mapping->getAnnotation()->getSerializerEnableMaxDepthChecks()) {
-            $context->enableMaxDepthChecks();
+            $context['enable_max_depth'] = true;
         }
 
         if ($mapping->getAnnotation()->getSerializerGroups()) {
-            $context->setGroups($mapping->getAnnotation()->getSerializerGroups());
+            $context['groups'] = $mapping->getAnnotation()->getSerializerGroups();
         }
 
         if ($mapping->getAnnotation()->getSerializerSerializeNull()) {
-            $context->setSerializeNull(true);
+            //@todo not sure if this support in symfony serializer
         }
 
         return $context;
@@ -398,7 +395,6 @@ class WampKernel implements HttpKernelInterface
         $this->client = $client;
         $this->client->on('open', [$this, 'onOpen']);
     }
-
 
     /**
      * Deserialize Controller arguments
@@ -439,9 +435,9 @@ class WampKernel implements HttpKernelInterface
                         );
                     }
 
-                    $arg                = is_array($arg) ? $arg : (array) $arg;
+                    $arg                = is_array($arg) ? $arg : (array)$arg;
                     $className          = $params[$key]->getClass()->getName();
-                    $deserializedArgs[] = $this->serializer->fromArray($arg, $className);
+                    $deserializedArgs[] = $this->serializer->denormalize($arg, $className);
 
                 } else {
                     $deserializedArgs[] = $arg;
@@ -484,6 +480,7 @@ class WampKernel implements HttpKernelInterface
     /**
      * @param UserInterface $user
      * @param ContainerInterface $container
+     * @throws \InvalidArgumentException
      */
     private function authenticateUser(UserInterface $user, ContainerInterface $container)
     {
@@ -494,7 +491,6 @@ class WampKernel implements HttpKernelInterface
         $container->get('security.token_storage')->setToken($token);
     }
 
-
     /**
      * @param $arr
      * @return bool
@@ -503,7 +499,6 @@ class WampKernel implements HttpKernelInterface
     {
         return array_keys($arr) !== range(0, count($arr) - 1);
     }
-
 
     /**
      *  Cleanup
@@ -601,9 +596,7 @@ class WampKernel implements HttpKernelInterface
         }
 
         return $roles;
-
     }
-
 
     public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
     {
@@ -649,5 +642,4 @@ class WampKernel implements HttpKernelInterface
     {
         return $this->session;
     }
-
 }

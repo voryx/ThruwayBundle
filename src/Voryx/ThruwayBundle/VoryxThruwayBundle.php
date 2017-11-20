@@ -31,6 +31,7 @@ class VoryxThruwayBundle extends Bundle
 
     /**
      * @param ContainerBuilder $container
+     * @throws \LogicException
      */
     public function build(ContainerBuilder $container)
     {
@@ -38,5 +39,11 @@ class VoryxThruwayBundle extends Bundle
         $passConfig->addPass(new AnnotationConfigurationPass($this->kernel));
         $passConfig->addPass(new ServiceConfigurationPass());
         $container->addCompilerPass(new GlobalTaggedServicesPass());
+
+        $container->loadFromExtension('framework', [
+            'serializer' => [
+                'enabled' => true,
+            ],
+        ]);
     }
 }

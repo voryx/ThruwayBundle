@@ -127,7 +127,7 @@ class Register implements AnnotationInterface
     /**
      * @return bool
      */
-    function getSerializerSerializeNull()
+    public function getSerializerSerializeNull()
     {
         return $this->serializerSerializeNull;
     }
