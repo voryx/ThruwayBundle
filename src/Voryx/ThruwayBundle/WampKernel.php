@@ -254,7 +254,7 @@ class WampKernel implements HttpKernelInterface
             return $rawResult->then(function ($d) use ($context) {
                 //If the data is a CallResult, we only want to serialize the first argument
                 $d = $d instanceof CallResult ? [$d[0]] : $d;
-                return $this->serializer->normalize($d, $context);
+                return $this->serializer->normalize($d, null, $context);
             });
         }
 
