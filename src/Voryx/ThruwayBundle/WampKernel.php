@@ -245,7 +245,7 @@ class WampKernel implements HttpKernelInterface
      * @param $mapping
      * @return mixed|Promise
      */
-    protected function serializeResult($rawResult, $mapping)
+    public function serializeResult($rawResult, $mapping)
     {
         //Create a serialization context
         $context = $this->createSerializationContext($mapping);
@@ -253,14 +253,15 @@ class WampKernel implements HttpKernelInterface
         if ($rawResult instanceof Promise) {
             return $rawResult->then(function ($d) use ($context) {
                 //If the data is a CallResult, we only want to serialize the first argument
-                $d = $d instanceof CallResult ? [$d[0]] : $d;
-                return $this->serializer->normalize($d, null, $context);
+                $d      = $d instanceof CallResult ? [$d[0]] : $d;
+                $result = is_array($d) ? $d : [$d];
+
+                return $this->serializer->normalize($result, null, $context);
             });
         }
 
-        if ($rawResult !== null) {
-            return $this->serializer->normalize($rawResult, null, $context);
-        }
+        $result = is_array($rawResult) ? $rawResult : [$rawResult];
+        return $this->serializer->normalize($result, null, $context);
     }
 
     /**

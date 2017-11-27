@@ -44,6 +44,13 @@ class TestController extends Controller
         return func_get_args();
     }
 
+    /**
+     * rpc test with stdClass
+     */
+    public function RPCTestWithStdClass(\stdClass $person)
+    {
+        return func_get_args();
+    }
 
     /**
      * rpc test with multiple types
