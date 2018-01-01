@@ -10,7 +10,7 @@ Note:  This project is still undergoing a lot of changes, so the API will change
 
 Install the Thruway Bundle
 
-      $ php composer.phar require "voryx/thruway-bundle":"dev-master"
+      $ composer require "voryx/thruway-bundle"
       
 
 Update AppKernel.php
