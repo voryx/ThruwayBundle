@@ -263,7 +263,7 @@ class ThruwayProcessCommand extends ContainerAwareCommand
      */
     protected function addSymfonyCmdWorkers($env)
     {
-        $phpBinary = PHP_BINARY;
+        $phpBinary = escapeshellarg(PHP_BINARY);
         if (!$this->input->getOption('no-exec')) {
             $phpBinary = 'exec ' . $phpBinary;
         }
@@ -320,7 +320,7 @@ class ThruwayProcessCommand extends ContainerAwareCommand
      */
     protected function addWorkers($env)
     {
-        $phpBinary = PHP_BINARY;
+        $phpBinary = escapeshellarg(PHP_BINARY);
         if (!$this->input->getOption('no-exec')) {
             $phpBinary = 'exec ' . $phpBinary;
         }
