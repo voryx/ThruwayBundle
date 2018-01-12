@@ -22,6 +22,8 @@ class Subscribe implements AnnotationInterface
      */
     protected $value;
 
+    protected $disclosePublisher;
+
     protected $serializerGroups;
 
     protected $serializerEnableMaxDepthChecks;
@@ -48,6 +50,14 @@ class Subscribe implements AnnotationInterface
     public function getName()
     {
         return $this->value;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDisclosePublisher()
+    {
+        return $this->disclosePublisher;
     }
 
     /**
