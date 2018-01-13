@@ -228,14 +228,22 @@ class WampKernel implements HttpKernelInterface
      */
     protected function createSubscribe(MappingInterface $mapping)
     {
-        $topic = $mapping->getAnnotation()->getName();
+        /* @var $annotation Subscribe */
+        $annotation          = $mapping->getAnnotation();
+        $disclosePublisher   = $annotation->getDisclosePublisher() !== null ? $annotation->getDisclosePublisher() : true;
+        $topic               = $annotation->getName();
+
+        //Subscribe Options
+        $subscribeOptions = [
+            'disclose_publisher' => $disclosePublisher
+        ];
 
         $subscribeCallback = function ($args, $argsKw, $details) use ($mapping) {
             $this->handleEvent($args, $argsKw, $details, $mapping);
         };
 
         //Subscribe to a topic
-        $this->session->subscribe($topic, $subscribeCallback);
+        $this->session->subscribe($topic, $subscribeCallback, $subscribeOptions);
     }
 
     /**
