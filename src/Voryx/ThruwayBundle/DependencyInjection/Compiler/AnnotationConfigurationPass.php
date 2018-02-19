@@ -7,7 +7,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * Class AnnotationConfigurationPass
@@ -15,17 +14,18 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 class AnnotationConfigurationPass implements CompilerPassInterface
 {
-    /**
-     * @var KernelInterface
-     */
-    private $kernel;
 
     /**
-     * @param KernelInterface $kernel
+     * @var array
      */
-    public function __construct(KernelInterface $kernel)
+    private $bundles;
+
+    /**
+     * @param array $bundles
+     */
+    public function __construct(array $bundles)
     {
-        $this->kernel = $kernel;
+        $this->bundles = $bundles;
     }
 
     /**
@@ -67,7 +67,7 @@ class AnnotationConfigurationPass implements CompilerPassInterface
 
         $config      = $container->getParameter('voryx_thruway');
         $scanBundles = $config['locations']['bundles'];
-        $bundles     = $this->kernel->getBundles();
+        $bundles     = $this->bundles;
         $files       = [];
 
         foreach ($bundles as $name => $bundle) {
@@ -76,7 +76,7 @@ class AnnotationConfigurationPass implements CompilerPassInterface
             }
 
             $finder = new Finder();
-            $finder->files()->in($bundle->getPath())->name('*.php')->contains('Voryx\ThruwayBundle\Annotation')->depth('< 5');
+            $finder->files()->in($bundle['path'])->name('*.php')->contains('Voryx\ThruwayBundle\Annotation')->depth('< 5');
 
             /* @var $file \Symfony\Component\Finder\SplFileInfo */
             foreach ($finder as $file) {

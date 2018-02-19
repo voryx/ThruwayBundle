@@ -11,6 +11,20 @@ use Thruway\Transport\PawlTransportProvider;
 
 class ThruwayWorkerCommand extends ContainerAwareCommand
 {
+
+    /**
+     * @var \Psr\Log\LoggerInterface $logger
+     */
+    private $logger;
+
+    /**
+     * @required
+     */
+    public function setLogger(\Psr\Log\LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -59,8 +73,7 @@ class ThruwayWorkerCommand extends ContainerAwareCommand
             $client->start();
 
         } catch (\Exception $e) {
-            $logger = $this->getContainer()->get('logger');
-            $logger->addCritical('EXCEPTION:' . $e->getMessage());
+            $this->logger->addCritical('EXCEPTION:' . $e->getMessage());
             $output->writeln('EXCEPTION:' . $e->getMessage());
         }
     }

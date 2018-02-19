@@ -49,6 +49,19 @@ class ThruwayProcessCommand extends ContainerAwareCommand
     private $consoleCommand;
 
     /**
+     * @var \Psr\Log\LoggerInterface $logger
+     */
+    private $logger;
+
+    /**
+     * @required
+     */
+    public function setLogger(\Psr\Log\LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -143,8 +156,7 @@ class ThruwayProcessCommand extends ContainerAwareCommand
             $this->processManager->start();
 
         } catch (\Exception $e) {
-            $logger = $this->getContainer()->get('logger');
-            $logger->addCritical('EXCEPTION:' . $e->getMessage());
+            $this->logger->addCritical('EXCEPTION:' . $e->getMessage());
             $this->output->writeln('EXCEPTION:' . $e->getMessage());
         }
     }

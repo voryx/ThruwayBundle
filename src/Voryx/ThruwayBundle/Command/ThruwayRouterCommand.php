@@ -9,6 +9,20 @@ use Thruway\Transport\RatchetTransportProvider;
 
 class ThruwayRouterCommand extends ContainerAwareCommand
 {
+
+    /**
+     * @var \Psr\Log\LoggerInterface $logger
+     */
+    private $logger;
+
+    /**
+     * @required
+     */
+    public function setLogger(\Psr\Log\LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -42,8 +56,7 @@ class ThruwayRouterCommand extends ContainerAwareCommand
             $server->start();
 
         } catch (\Exception $e) {
-            $logger = $this->getContainer()->get('logger');
-            $logger->addCritical('EXCEPTION:' . $e->getMessage());
+            $this->logger->addCritical('EXCEPTION:' . $e->getMessage());
             $output->writeln('EXCEPTION:' . $e->getMessage());
         }
     }
