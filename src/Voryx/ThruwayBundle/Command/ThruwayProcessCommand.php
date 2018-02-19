@@ -54,7 +54,7 @@ class ThruwayProcessCommand extends ContainerAwareCommand
     private $logger;
 
     /**
-     * @required
+     * Called by the Service Container.
      */
     public function setLogger(\Psr\Log\LoggerInterface $logger)
     {

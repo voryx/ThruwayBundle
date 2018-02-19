@@ -134,20 +134,29 @@
             <argument type="service" id="voryx.thruway.loop"/>
         </service>
 
-        <!-- Register command as public services and enable autowiring -->
-        <service id="thruway.command.debug" class="Voryx\ThruwayBundle\Command\ThruwayDebugCommand" autowire="true" public="true">
+        <!-- Register command as public services -->
+        <service id="thruway.command.debug" class="Voryx\ThruwayBundle\Command\ThruwayDebugCommand" public="true">
             <tag name="console.command" command="thruway:debug" />
         </service>
 
-        <service id="thruway.command.process" class="Voryx\ThruwayBundle\Command\ThruwayProcessCommand" autowire="true" public="true">
+        <service id="thruway.command.process" class="Voryx\ThruwayBundle\Command\ThruwayProcessCommand" public="true">
+            <call method="setLogger">
+                <argument type="service" id="logger" />
+            </call>
             <tag name="console.command" command="thruway:process" />
         </service>
 
-        <service id="thruway.command.router" class="Voryx\ThruwayBundle\Command\ThruwayRouterCommand" autowire="true" public="true">
+        <service id="thruway.command.router" class="Voryx\ThruwayBundle\Command\ThruwayRouterCommand" public="true">
+            <call method="setLogger">
+                <argument type="service" id="logger" />
+            </call>
             <tag name="console.command" command="thruway:router:start" />
         </service>
 
-        <service id="thruway.command.worker" class="Voryx\ThruwayBundle\Command\ThruwayWorkerCommand" autowire="true" public="true">
+        <service id="thruway.command.worker" class="Voryx\ThruwayBundle\Command\ThruwayWorkerCommand" public="true">
+            <call method="setLogger">
+                <argument type="service" id="logger" />
+            </call>
             <tag name="console.command" command="thruway:worker:start" />
         </service>
 

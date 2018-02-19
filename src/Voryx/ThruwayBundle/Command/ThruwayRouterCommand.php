@@ -16,7 +16,7 @@ class ThruwayRouterCommand extends ContainerAwareCommand
     private $logger;
 
     /**
-     * @required
+     * Called by the Service Container.
      */
     public function setLogger(\Psr\Log\LoggerInterface $logger)
     {

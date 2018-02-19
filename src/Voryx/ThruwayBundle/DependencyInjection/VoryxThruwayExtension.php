@@ -27,15 +27,8 @@ class VoryxThruwayExtension extends Extension
         $config        = $this->processConfiguration($configuration, $configs);
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        //var_dump($container);
-        if (strpos(\Symfony\Component\HttpKernel\Kernel::VERSION, '2.7')===0)
-        {
-            $loader->load('services.2.7.xml');
-        }
-        else
-        {
-            $loader->load('services.xml');
-        }
+        
+        $loader->load('services.xml');
 
         $this->validate($config);
 
