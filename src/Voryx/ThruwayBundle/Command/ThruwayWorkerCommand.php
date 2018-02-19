@@ -43,6 +43,14 @@ class ThruwayWorkerCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if ($this->getContainer()->getParameter('voryx_thruway')['enable_logging'])
+        {
+            \Thruway\Logging\Logger::set($this->logger);
+        }
+        else
+        {
+            \Thruway\Logging\Logger::set(new \Psr\Log\NullLogger());
+        }
 
         try {
             echo "Making a go at starting a Thruway worker.\n";
