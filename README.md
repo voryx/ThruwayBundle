@@ -13,7 +13,7 @@ Install the Thruway Bundle
       $ composer require "voryx/thruway-bundle"
       
 
-Update AppKernel.php
+Update AppKernel.php (when using Symfony < 4)
 
 ```php
 $bundles = array(
@@ -42,6 +42,9 @@ voryx_thruway:
 #            - "Acme\\DemoBundle\\Controller\\DemoController"
       
 ```
+
+With Symfony 4 use a filename like: ```config/packages/voryx.yaml```
+
 If you are using the in-memory user provider, you'll need to add a ```thruway``` to the security firewall and set the ``in_memory_user_provider``.
 
 ```yml
