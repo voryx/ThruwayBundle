@@ -6,7 +6,7 @@
 
     <services>
 
-        <service id="voryx.thruway.loop" class="React\EventLoop\LoopInterface">
+        <service id="voryx.thruway.loop" class="React\EventLoop\LoopInterface" public="true">
             <factory class="React\EventLoop\Factory" method="create" />
         </service>
 
@@ -56,7 +56,7 @@
         </service>
 
         <service id="voryx.thruway.resource.mapper"
-                 class="Voryx\ThruwayBundle\ResourceMapper">
+                 class="Voryx\ThruwayBundle\ResourceMapper" public="true">
             <argument type="service" id="annotation_reader"/>
         </service>
 
@@ -116,7 +116,7 @@
 
         <!--Main Thruway Client-->
         <service id="thruway.client"
-                 class="Voryx\ThruwayBundle\Client\ClientManager">
+                 class="Voryx\ThruwayBundle\Client\ClientManager" public="true">
             <argument type="service" id="service_container"/>
             <argument>%voryx_thruway%</argument>
             <argument type="service" id="serializer"/>

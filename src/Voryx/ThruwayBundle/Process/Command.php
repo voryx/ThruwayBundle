@@ -35,7 +35,7 @@ class Command
     /**
      * @var Process[]
      */
-    private $processes;
+    private $processes = [];
 
     /**
      * @var LoopInterface

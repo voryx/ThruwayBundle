@@ -28,6 +28,8 @@ class ServiceConfigurationPass implements CompilerPassInterface
             } elseif (method_exists($def, 'setScope')) {
                 $def->setScope('prototype');
             }
+            // For Symfony >= 4 we need to expose worker publicly.
+            $def->setPublic(true);
 
             $className      = $def->getClass();
             $class          = new \ReflectionClass($className);
