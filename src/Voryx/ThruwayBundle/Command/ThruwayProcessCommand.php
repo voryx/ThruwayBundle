@@ -163,7 +163,7 @@ class ThruwayProcessCommand extends ContainerAwareCommand
             $this->processManager->start();
 
         } catch (\Exception $e) {
-            $this->logger->addCritical('EXCEPTION:' . $e->getMessage());
+            $this->logger->critical('EXCEPTION:' . $e->getMessage());
             $this->output->writeln('EXCEPTION:' . $e->getMessage());
         }
     }
