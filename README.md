@@ -13,7 +13,7 @@ Install the Thruway Bundle
       $ composer require "voryx/thruway-bundle"
       
 
-Update AppKernel.php
+Update AppKernel.php (when using Symfony < 4)
 
 ```php
 $bundles = array(
@@ -42,6 +42,9 @@ voryx_thruway:
 #            - "Acme\\DemoBundle\\Controller\\DemoController"
       
 ```
+
+With Symfony 4 use a filename like: ```config/packages/voryx.yaml```
+
 If you are using the in-memory user provider, you'll need to add a ```thruway``` to the security firewall and set the ``in_memory_user_provider``.
 
 ```yml
@@ -62,6 +65,16 @@ You can also tag services with `thruway.resource` and any annotation will get pi
 
 ```
 
+If using Symfony 4 you will probably want to configure some worker classes to be tagged as `thruway.resource`. This will allow you to use the `Worker`, `Register` or `Subscribe` annotations.
+
+Note: tagging a service as `thruway.resource` will make it public.
+
+```yml
+services:
+    App\Worker\:
+        resource: '../src/Worker'
+        tags: ['thruway.resource']
+```
 
 ### Authentication with FOSUserBundle via WampCRA
 
@@ -281,7 +294,7 @@ You can start the default Thruway workers (router and client workers), without a
 By default, the router starts on ws://127.0.0.1:8080
     
      
-##Workers
+## Workers
 
 The Thruway bundle will start up a separate process for the router and each defined worker.  If you haven't defined any workers, all of the annotated calls and subscriptions will be started within the `default` worker.
 

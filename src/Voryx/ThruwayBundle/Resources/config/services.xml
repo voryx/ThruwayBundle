@@ -6,7 +6,7 @@
 
     <services>
 
-        <service id="voryx.thruway.loop" class="React\EventLoop\LoopInterface">
+        <service id="voryx.thruway.loop" class="React\EventLoop\LoopInterface" public="true">
             <factory class="React\EventLoop\Factory" method="create" />
         </service>
 
@@ -45,7 +45,7 @@
             <argument type="service" id="voryx.thruway.web.push.client"/>
         </service>
 
-        <service id="voryx.thruway.server" class="Thruway\Peer\Router">
+        <service id="voryx.thruway.server" class="Thruway\Peer\Router" public="true">
             <argument type="service" id="voryx.thruway.loop"/>
             <call method="addTransportProvider">
                 <argument type="service" id="voryx.thruway.ratchet.transport"/>
@@ -56,7 +56,7 @@
         </service>
 
         <service id="voryx.thruway.resource.mapper"
-                 class="Voryx\ThruwayBundle\ResourceMapper">
+                 class="Voryx\ThruwayBundle\ResourceMapper" public="true">
             <argument type="service" id="annotation_reader"/>
         </service>
 
@@ -64,7 +64,7 @@
             <tag name="serializer.normalizer" />
         </service>
 
-        <service id="wamp_kernel" class="Voryx\ThruwayBundle\WampKernel">
+        <service id="wamp_kernel" class="Voryx\ThruwayBundle\WampKernel" public="true">
             <argument type="service" id="service_container"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="voryx.thruway.resource.mapper"/>
@@ -116,7 +116,7 @@
 
         <!--Main Thruway Client-->
         <service id="thruway.client"
-                 class="Voryx\ThruwayBundle\Client\ClientManager">
+                 class="Voryx\ThruwayBundle\Client\ClientManager" public="true">
             <argument type="service" id="service_container"/>
             <argument>%voryx_thruway%</argument>
             <argument type="service" id="serializer"/>
@@ -133,5 +133,32 @@
             <argument type="expression">parameter('voryx_thruway')['realm']</argument>
             <argument type="service" id="voryx.thruway.loop"/>
         </service>
+
+        <!-- Register command as public services -->
+        <service id="thruway.command.debug" class="Voryx\ThruwayBundle\Command\ThruwayDebugCommand" public="true">
+            <tag name="console.command" command="thruway:debug" />
+        </service>
+
+        <service id="thruway.command.process" class="Voryx\ThruwayBundle\Command\ThruwayProcessCommand" public="true">
+            <call method="setLogger">
+                <argument type="service" id="logger" />
+            </call>
+            <tag name="console.command" command="thruway:process" />
+        </service>
+
+        <service id="thruway.command.router" class="Voryx\ThruwayBundle\Command\ThruwayRouterCommand" public="true">
+            <call method="setLogger">
+                <argument type="service" id="logger" />
+            </call>
+            <tag name="console.command" command="thruway:router:start" />
+        </service>
+
+        <service id="thruway.command.worker" class="Voryx\ThruwayBundle\Command\ThruwayWorkerCommand" public="true">
+            <call method="setLogger">
+                <argument type="service" id="logger" />
+            </call>
+            <tag name="console.command" command="thruway:worker:start" />
+        </service>
+
     </services>
 </container>

@@ -9,6 +9,20 @@ use Thruway\Transport\RatchetTransportProvider;
 
 class ThruwayRouterCommand extends ContainerAwareCommand
 {
+
+    /**
+     * @var \Psr\Log\LoggerInterface $logger
+     */
+    private $logger;
+
+    /**
+     * Called by the Service Container.
+     */
+    public function setLogger(\Psr\Log\LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -25,6 +39,15 @@ class ThruwayRouterCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if ($this->getContainer()->getParameter('voryx_thruway')['enable_logging'])
+        {
+            \Thruway\Logging\Logger::set($this->logger);
+        }
+        else
+        {
+            \Thruway\Logging\Logger::set(new \Psr\Log\NullLogger());
+        }
+
         try {
             $output->writeln('Making a go at starting the Thruway Router');
 
@@ -42,8 +65,7 @@ class ThruwayRouterCommand extends ContainerAwareCommand
             $server->start();
 
         } catch (\Exception $e) {
-            $logger = $this->getContainer()->get('logger');
-            $logger->addCritical('EXCEPTION:' . $e->getMessage());
+            $this->logger->critical('EXCEPTION:' . $e->getMessage());
             $output->writeln('EXCEPTION:' . $e->getMessage());
         }
     }
