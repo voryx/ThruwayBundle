@@ -40,6 +40,8 @@ voryx_thruway:
         bundles: ["AppBundle"]
 #        files:
 #            - "Acme\\DemoBundle\\Controller\\DemoController"
+#
+# For symfony 4, this bundle will automatically scan for annotated worker files in the src/Controller folder
       
 ```
 
@@ -64,8 +66,6 @@ You can also tag services with `thruway.resource` and any annotation will get pi
 </service>
 
 ```
-
-If using Symfony 4 you will probably want to configure some worker classes to be tagged as `thruway.resource`. This will allow you to use the `Worker`, `Register` or `Subscribe` annotations.
 
 Note: tagging a service as `thruway.resource` will make it public.
 

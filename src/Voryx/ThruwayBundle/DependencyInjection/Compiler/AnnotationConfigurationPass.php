@@ -70,6 +70,7 @@ class AnnotationConfigurationPass implements CompilerPassInterface
         $bundles     = $this->bundles;
         $files       = [];
 
+        // Scan files in Bundles
         foreach ($bundles as $name => $bundle) {
             if (!in_array($name, $scanBundles, true)) {
                 continue;
@@ -83,6 +84,21 @@ class AnnotationConfigurationPass implements CompilerPassInterface
                 $files[] = $this->getClassName($file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename());
             }
 
+        }
+
+        //Scan files in /Controller dir
+        $rootPath      = $container->getParameter('kernel.root_dir');
+        $controllerDir = $rootPath . '/Controller/';
+
+        $finder = new Finder();
+        try {
+            $finder->files()->in($controllerDir)->name('*.php')->contains('Voryx\ThruwayBundle\Annotation')->depth('< 5');
+
+            foreach ($finder as $file) {
+                $files[] = $this->getClassName($controllerDir . $file->getFilename());
+            }
+        } catch (\Exception $e) {
+            // Don't do anything if the Controller folder doesn't exist
         }
 
         return $files;
