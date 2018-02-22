@@ -345,11 +345,21 @@ For the client, you can use [AutobahnJS](https://github.com/tavendo/AutobahnJS) 
 Here are some [examples](https://github.com/tavendo/AutobahnJS#show-me-some-code)
 
 # Symfony 4 Quick Start
-`composer create-project symfony/skeleton my_project`
-`cd my_project`
-`composer require symfony/expression-language`
-`composer require symfony/annotations-pack`
-`composer require voryx/thruway-bundle:dev-master`
+```BASH
+composer create-project symfony/skeleton my_project
+```
+```BASH
+cd my_project
+```
+```BASH
+composer require symfony/expression-language
+```
+```BASH
+composer require symfony/annotations-pack
+```
+```BASH
+composer require voryx/thruway-bundle:dev-master
+```
 
 Create config/packages/my_project.yml with the following config:
 ```YML
@@ -383,8 +393,12 @@ class TestController
 ```
 
 Test to see if the RPC has been configured correctly `bin/console thruway:debug`
-
-Start everything:
-`bin/console thruway:process start`
+```BASH
+ URI             Type Worker  File                                                  Method    
+ com.example.add RPC  default /my_project/src/Controller/TestController.php         addAction 
+ ```
+ For more debug info for the RPC we created: `bin/console thruway:debug com.example.add`
+ 
+Start everything: `bin/console thruway:process start`
 
 The RPC `com.example.add` is now available to any WAMP client connected to ws://127.0.0.1:8081 on realm1.
