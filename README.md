@@ -343,3 +343,48 @@ If a worker is shut down with anything other than `SIGTERM`, it will automatical
 For the client, you can use [AutobahnJS](https://github.com/tavendo/AutobahnJS) or any other WAMPv2 compatible client.
 
 Here are some [examples](https://github.com/tavendo/AutobahnJS#show-me-some-code)
+
+# Symfony 4 Quick Start
+`composer create-project symfony/skeleton my_project`
+`cd my_project`
+`composer require symfony/expression-language`
+`composer require symfony/annotations-pack`
+`composer require voryx/thruway-bundle:dev-master`
+
+Create config/packages/my_project.yml with the following config:
+```YML
+voryx_thruway:
+    realm: 'realm1'
+    url: 'ws://127.0.0.1:8081' #The url that the clients will use to connect to the router
+    router:
+        ip: '127.0.0.1'  # the ip that the router should start on
+        port: '8080'  # public facing port.  If authentication is enabled, this port will be protected
+        trusted_port: '8081' # Bypasses all authentication.  Use this for trusted clients.
+```
+
+Create the controller src/Controller/TestController.php
+
+```PHP
+<?php
+namespace App\Controller;
+
+use Voryx\ThruwayBundle\Annotation\Register;
+
+class TestController
+{
+    /**
+     * @Register("com.example.add")
+     */
+    public function addAction($num1, $num2)
+    {
+        return $num1 + $num2;
+    }
+}
+```
+
+Test to see if the RPC has been configured correctly `bin/console thruway:debug`
+
+Start everything:
+`bin/console thruway:process start`
+
+The RPC `com.example.add` is now available to any WAMP client connected to ws://127.0.0.1:8081 on realm1.
