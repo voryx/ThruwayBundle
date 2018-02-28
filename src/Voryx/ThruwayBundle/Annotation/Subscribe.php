@@ -29,6 +29,12 @@ class Subscribe implements AnnotationInterface
     protected $worker;
 
     /**
+     * @var string $match The type of URI matcher to use: "exact" or "prefix".
+     *                    Defaults to "exact"
+     */
+    protected $match = 'exact';
+
+    /**
      * @param $options
      * @throws \InvalidArgumentException
      */
@@ -72,5 +78,21 @@ class Subscribe implements AnnotationInterface
     public function getWorker()
     {
         return $this->worker;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMatch()
+    {
+        return $this->match;
+    }
+
+    /**
+     * @param string $match
+     */
+    public function setMatch($match)
+    {
+        $this->match = $match;
     }
 }
