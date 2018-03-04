@@ -53,7 +53,7 @@ class ThruwayWorkerCommand extends ContainerAwareCommand
         }
 
         try {
-            echo "Making a go at starting a Thruway worker.\n";
+            $output->write("Making a go at starting a Thruway worker.");
 
             $name             = $input->getArgument('name');
             $config           = $this->getContainer()->getParameter('voryx_thruway');
