@@ -30,9 +30,8 @@ class Subscribe implements AnnotationInterface
 
     /**
      * @var string $match The type of URI matcher to use: "exact" or "prefix".
-     *                    Defaults to "exact"
      */
-    protected $match = 'exact';
+    protected $match;
 
     /**
      * @param $options
