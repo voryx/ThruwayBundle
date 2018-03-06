@@ -239,10 +239,14 @@ class WampKernel implements HttpKernelInterface
             $this->handleEvent($args, $argsKw, $details, $mapping);
         };
 
+        $options = [];
+
+        if ($match = $annotation->getMatch()) {
+            $options['match'] = $match;
+        }
+
         //Subscribe to a topic
-        $this->session->subscribe($topic, $subscribeCallback, [
-            'match' => $annotation->getMatch(),
-        ]);
+        $this->session->subscribe($topic, $subscribeCallback, $options);
     }
 
     /**
