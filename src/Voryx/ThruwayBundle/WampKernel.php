@@ -18,6 +18,7 @@ use Thruway\CallResult;
 use Thruway\ClientSession;
 use Thruway\Peer\Client;
 use Thruway\Transport\TransportInterface;
+use Thruway\WampErrorException;
 use Voryx\ThruwayBundle\Annotation\Register;
 use Voryx\ThruwayBundle\Annotation\Subscribe;
 use Voryx\ThruwayBundle\Event\SessionEvent;
@@ -213,9 +214,11 @@ class WampKernel implements HttpKernelInterface
 
             return $rawResult;
 
+        } catch (WampErrorException $e) {
+            throw $e;
         } catch (\Exception $e) {
             $this->cleanup();
-            $message = "Unable to make the call: {$mapping->getAnnotation()->getName()} \n Message:  {$e->getMessage()}";
+            $message = "Unable to make the call: {$mapping->getAnnotation()->getName()} \n Message:  {$e->getMessage()} \n {$e->getFile()}:{$e->getLine()}";
             $this->logger->critical($message);
             throw new \Exception($message);
         }
