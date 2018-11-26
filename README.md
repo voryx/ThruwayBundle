@@ -18,7 +18,7 @@ Update AppKernel.php (when using Symfony < 4)
 ```php
 $bundles = array(
     // ...
-    new Voryx\ThruwayBundle\VoryxThruwayBundle($this),
+    new Voryx\ThruwayBundle\VoryxThruwayBundle(),
     // ...
 );
 ```
