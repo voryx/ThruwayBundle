@@ -396,7 +396,7 @@ class WampKernelTest extends \PHPUnit_Framework_TestCase
         try {
             $this->wampkernel->handleRPC($args, $argsKw, $details, $mapping);
         } catch (\Exception $e) {
-            $this->assertEquals("Unable to make the call: test.uri \n Message:  Undefined variable: b", $e->getMessage());
+            $this->assertStringStartsWith("Unable to make the call: test.uri \n Message:  Undefined variable: b", $e->getMessage());
         }
     }
 
