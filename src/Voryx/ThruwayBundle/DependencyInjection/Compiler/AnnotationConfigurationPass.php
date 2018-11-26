@@ -44,15 +44,19 @@ class AnnotationConfigurationPass implements CompilerPassInterface
 
         foreach ($files as $class) {
             $class      = new \ReflectionClass($class);
-            $serviceId  = strtolower(str_replace("\\", "_", $class->getName()));
-            $definition = new Definition($class->getName());
+            $className  = $class->getName();
+            $serviceId  = strtolower(str_replace("\\", "_", $className));
+            $definition = $container->getDefinition($className) ? $container->getDefinition($className) : new Definition($className);
+
             $definition->addTag('thruway.resource');
 
-            if ($class->implementsInterface('Symfony\Component\DependencyInjection\ContainerAwareInterface')) {
+            if (!$container->getDefinition($className)) {
+              if ($class->implementsInterface('Symfony\Component\DependencyInjection\ContainerAwareInterface')) {
                 $container->setDefinition($serviceId, $definition)
-                    ->addMethodCall('setContainer', [new Reference('thruway_container')]);
-            } else {
+                  ->addMethodCall('setContainer', [new Reference('thruway_container')]);
+              } else {
                 $container->setDefinition($serviceId, $definition);
+              }
             }
         }
     }
