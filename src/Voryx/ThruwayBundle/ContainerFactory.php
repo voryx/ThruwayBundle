@@ -13,12 +13,11 @@ class ContainerFactory
     {
 
         /** @var ContainerInterface $childContainer */
-        $childContainer = new $containerName();
-
-        // These container identifiers are used by some services
-        $childContainer->set('container.build_hash', $parentContainer->get('container.build_hash'));
-        $childContainer->set('container.build_id', $parentContainer->get('container.build_id'));
-        $childContainer->set('container.build_time', $parentContainer->get('container.build_time'));
+        $childContainer = new $containerName([
+            'container.build_id'   => $parentContainer->getParameter('container.build_id'),
+            'container.build_hash' => $parentContainer->getParameter('container.build_hash'),
+            'container.build_time' => $parentContainer->getParameter('container.build_time'),
+        ]);
 
         //These services will be passed from the outer container into the inner container
         $childContainer->set('thruway.client', $thruwayClient);
