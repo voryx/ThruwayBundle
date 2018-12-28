@@ -17,9 +17,7 @@ class ServiceConfigurationPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-
         foreach ($container->findTaggedServiceIds('thruway.resource') as $id => $attr) {
-
             $def = $container->getDefinition($id);
 
             //For symfony >= v2.8
@@ -50,6 +48,11 @@ class ServiceConfigurationPass implements CompilerPassInterface
 
         foreach ($container->findTaggedServiceIds('thruway.internal_client') as $id => $attr) {
             $router->addMethodCall('addInternalClient', [new Reference($id)]);
+        }
+
+        if ($container->hasDefinition('security.user.provider.concrete.in_memory')) {
+            $container->addAliases(['in_memory_user_provider' => 'security.user.provider.concrete.in_memory']);
+            $container->getAlias('in_memory_user_provider')->setPublic(true);
         }
     }
 }

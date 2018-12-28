@@ -81,19 +81,16 @@ class VoryxThruwayExtension extends Extension
      */
     protected function configureOptions(&$config, ContainerBuilder $container)
     {
-
         if ($config['enable_logging'] !== true) {
             Logger::set(new NullLogger());
         }
 
         if (isset($config['router']['authentication']) && $config['router']['authentication'] !== false) {
-
             //Inject the authentication manager into the router
             $container
               ->getDefinition('voryx.thruway.server')
               ->addMethodCall('registerModule', [new Reference('voryx.thruway.authentication.manager')]);
         }
-
 
         if (isset($config['router']['authorization']) && $config['router']['authorization'] !== false) {
             $authId = $config['router']['authorization'];
@@ -101,13 +98,8 @@ class VoryxThruwayExtension extends Extension
                 ->addMethodCall('registerModule', [new Reference($authId)]);
         }
 
-        if ($container->hasDefinition('security.user.provider.concrete.in_memory')) {
-            $container->addAliases(['in_memory_user_provider' => 'security.user.provider.concrete.in_memory']);
-        }
-
         //Topic State Handler
         if (isset($config['router']['enable_topic_state']) && $config['router']['enable_topic_state'] === true) {
-
             $container
               ->getDefinition('voryx.thruway.server')
               ->addMethodCall('registerModule', [new Reference('voryx.thruway.topic.state.handler')]);
