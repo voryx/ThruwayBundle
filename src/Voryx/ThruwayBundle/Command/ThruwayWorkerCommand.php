@@ -75,7 +75,7 @@ class ThruwayWorkerCommand extends ContainerAwareCommand
             $client->addTransportProvider($transport);
 
             $kernel->setProcessName($name);
-            $kernel->setClient($client);
+            $kernel->setClient($client, $this->getContainer()->get('voryx.thruway.client.react_connector'));
             $kernel->setProcessInstance($input->getArgument('instance'));
 
             $client->start();
