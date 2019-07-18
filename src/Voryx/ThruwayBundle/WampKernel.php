@@ -200,7 +200,15 @@ class WampKernel implements HttpKernelInterface
             //Force cleanup before making the call
             $this->cleanup();
 
-            $controller     = $this->container->get($mapping->getServiceId());
+            $newContainer = ContainerFactory::createContainer(
+                $this->container->getParameter('kernel.container_class'),
+                $this->container->get('thruway.client'),
+                $this->container->get('voryx.thruway.loop'),
+                $this->container
+            );
+
+            $controller = $newContainer->get($mapping->getServiceId());
+
             $controllerArgs = $this->deserializeArgs($args, $mapping);
 
             $this->setControllerContainerDetails($controller, $args, $argsKw, $details);
@@ -544,6 +552,10 @@ class WampKernel implements HttpKernelInterface
                 }
             }
             $this->container->get('doctrine')->getManager()->clear();
+        }
+
+        if ($controller){
+            gc_collect_cycles();
         }
     }
 
