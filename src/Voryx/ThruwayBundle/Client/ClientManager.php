@@ -2,10 +2,12 @@
 
 namespace Voryx\ThruwayBundle\Client;
 
+use Exception;
 use Psr\Log\NullLogger;
 use React\Promise\Deferred;
-use React\Socket\ConnectorInterface;
+use React\Promise\Promise;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Serializer;
 use Thruway\ClientSession;
 use Thruway\Logging\Logger;
@@ -28,20 +30,16 @@ class ClientManager
 
     /** @var Serializer */
     private $serializer;
-    
-    /** @var ConnectorInterface */
-    private $connector;
 
     /**
      * @param Container $container
      * @param $config
      */
-    public function __construct(Container $container, $config, Serializer $serializer, ConnectorInterface $connector)
+    public function __construct(Container $container, $config, Serializer $serializer)
     {
         $this->container  = $container;
         $this->config     = $config;
         $this->serializer = $serializer;
-        $this->connector  = $connector;
     }
 
     /**
@@ -49,8 +47,9 @@ class ClientManager
      * @param $arguments
      * @param array|null $argumentsKw
      * @param null|array|Object $options
-     * @return \React\Promise\Promise
-     * @throws \Exception
+     * @return Promise
+     * @throws Exception
+     * @throws ExceptionInterface
      */
     public function publish($topicName, $arguments, array $argumentsKw = [], $options = null)
     {
@@ -103,8 +102,9 @@ class ClientManager
      * @param $arguments
      * @param array $argumentsKw
      * @param null $options
-     * @return \React\Promise\Promise
-     * @throws \Exception
+     * @return Promise
+     * @throws Exception
+     * @throws ExceptionInterface
      */
     public function call($procedureName, $arguments, $argumentsKw = [], $options = null)
     {
@@ -136,7 +136,7 @@ class ClientManager
 
         $client->on('error', function ($error) use ($procedureName) {
             $this->container->get('logger')->addError("Got the following error when trying to call '{$procedureName}': {$error}");
-            throw new \Exception("Got the following error when trying to call '{$procedureName}': {$error}");
+            throw new Exception("Got the following error when trying to call '{$procedureName}': {$error}");
         });
 
         $client->start();
@@ -146,7 +146,7 @@ class ClientManager
 
     /**
      * @return Client
-     * @throws \Exception
+     * @throws Exception
      */
     private function getShortClient()
     {

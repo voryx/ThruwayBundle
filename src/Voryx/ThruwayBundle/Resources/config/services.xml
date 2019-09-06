@@ -120,7 +120,6 @@
             <argument type="service" id="service_container"/>
             <argument>%voryx_thruway%</argument>
             <argument type="service" id="serializer"/>
-            <argument type="service" id="voryx.thruway.client.react_connector"/>
         </service>
 
         <service id="voryx.thruway.topic_state_handler" class="Voryx\ThruwayBundle\TopicStateHandler">
@@ -159,12 +158,6 @@
                 <argument type="service" id="logger" />
             </call>
             <tag name="console.command" command="thruway:worker:start" />
-        </service>
-
-        <service id="voryx.thruway.client.react_connector"
-                 class="React\Socket\Connector"
-                    >
-                <argument type="service" id="voryx.thruway.loop"/>
         </service>
     </services>
 </container>
