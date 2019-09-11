@@ -2,7 +2,9 @@
 
 namespace Voryx\ThruwayBundle;
 
-class Details
+use Voryx\ThruwayBundle\Interfaces\DetailsInterface;
+
+class Details implements DetailsInterface
 {
     protected $args;
     protected $argsKw;
@@ -16,7 +18,7 @@ class Details
     }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
      */
     public function getArgs()
     {

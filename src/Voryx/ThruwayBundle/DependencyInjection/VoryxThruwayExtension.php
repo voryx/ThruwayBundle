@@ -43,32 +43,32 @@ class VoryxThruwayExtension extends Extension
      * Validation for config
      * @param $config
      */
-    protected function validate($config)
+    protected function validate($config): void
     {
 
         //@todo add more config validation
 
         if (isset($config['resources']) && !is_array($config['resources'])) {
             throw new \InvalidArgumentException(
-              'The "resources" option must be an array'
+                'The "resources" option must be an array'
             );
         }
 
         if (isset($config['uri'])) {
             throw new \InvalidArgumentException(
-              'The "uri" config option has been deprecated, please use "url" instead'
+                'The "uri" config option has been deprecated, please use "url" instead'
             );
         }
 
         if (isset($config['trusted_uri'])) {
             throw new \InvalidArgumentException(
-              'The "trusted_uri" config option has been deprecated, please use "trusted_url" instead'
+                'The "trusted_uri" config option has been deprecated, please use "trusted_url" instead'
             );
         }
 
         if (!isset($config['realm'])) {
             throw new \InvalidArgumentException(
-              'The "realm" option must be set within voryx_thruway'
+                'The "realm" option must be set within voryx_thruway'
             );
         }
     }
@@ -98,7 +98,7 @@ class VoryxThruwayExtension extends Extension
                 ->addMethodCall('registerModule', [new Reference($authId)]);
         }
 
-        //Topic State Handler
+            //Topic State Handler
         if (isset($config['router']['enable_topic_state']) && $config['router']['enable_topic_state'] === true) {
             $container
               ->getDefinition('voryx.thruway.server')
@@ -110,14 +110,15 @@ class VoryxThruwayExtension extends Extension
      * Creates a service that allows us to store the services that get tagged with 'thruway.global'
      *
      * @param $config
-     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+     * @param ContainerBuilder $container
      */
-    protected function createTaggedServiceHolder($config, ContainerBuilder $container)
+    protected function createTaggedServiceHolder($config, ContainerBuilder $container): void
     {
 
         if (!$container->hasDefinition('tagged_service_holder')) {
             $taggedServiceHolder = new Definition();
             $taggedServiceHolder->setClass('ArrayObject');
+            $taggedServiceHolder->setPublic(true);
             $container->setDefinition('tagged_service_holder', $taggedServiceHolder);
         }
 

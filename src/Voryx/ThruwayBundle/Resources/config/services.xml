@@ -80,7 +80,7 @@
             <argument type="service" id="service_container"/>
         </service>
 
-        <service id="thruway.details" class="Voryx\ThruwayBundle\Details"/>
+        <service id="thruway.details" class="Voryx\ThruwayBundle\Details" public="true"/>
 
         <!--Authentication-->
         <service id="voryx.thruway.authentication.manager"

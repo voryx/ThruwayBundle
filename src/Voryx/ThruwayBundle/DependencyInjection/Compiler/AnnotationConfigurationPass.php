@@ -2,11 +2,14 @@
 
 namespace Voryx\ThruwayBundle\DependencyInjection\Compiler;
 
+use Exception;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * Class AnnotationConfigurationPass
@@ -34,9 +37,9 @@ class AnnotationConfigurationPass implements CompilerPassInterface
      * @param ContainerBuilder $container
      *
      * @api
-     * @throws \Exception
+     * @throws Exception
      */
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $config      = $container->getParameter('voryx_thruway');
         $bundleFiles = $this->getBundleFiles($container);
@@ -46,17 +49,19 @@ class AnnotationConfigurationPass implements CompilerPassInterface
             $class      = new \ReflectionClass($class);
             $className  = $class->getName();
             $serviceId  = strtolower(str_replace("\\", "_", $className));
-            $definition = $container->hasDefinition($className) ? $container->getDefinition($className) : new Definition($className);
+            $definition = $container->hasDefinition($className)
+                ? $container->getDefinition($className)
+                : new Definition($className);
 
             $definition->addTag('thruway.resource');
 
             if (!$container->hasDefinition($className)) {
-              if ($class->implementsInterface('Symfony\Component\DependencyInjection\ContainerAwareInterface')) {
-                $container->setDefinition($serviceId, $definition)
-                  ->addMethodCall('setContainer', [new Reference('thruway_container')]);
-              } else {
-                $container->setDefinition($serviceId, $definition);
-              }
+                if ($class->implementsInterface(ContainerAwareInterface::class)) {
+                    $container->setDefinition($serviceId, $definition)
+                    ->addMethodCall('setContainer', [new Reference('thruway_container')]);
+                } else {
+                    $container->setDefinition($serviceId, $definition);
+                }
             }
         }
     }
@@ -64,9 +69,9 @@ class AnnotationConfigurationPass implements CompilerPassInterface
     /**
      * @param ContainerBuilder $container
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
-    private function getBundleFiles(ContainerBuilder $container)
+    private function getBundleFiles(ContainerBuilder $container): array
     {
 
         $config      = $container->getParameter('voryx_thruway');
@@ -81,13 +86,13 @@ class AnnotationConfigurationPass implements CompilerPassInterface
             }
 
             $finder = new Finder();
-            $finder->files()->in($bundle['path'])->name('*.php')->contains('Voryx\ThruwayBundle\Annotation')->depth('< 5');
+            $finder->files()->in($bundle['path'])->name('*.php')
+                ->contains('Voryx\ThruwayBundle\Annotation')->depth('< 5');
 
-            /* @var $file \Symfony\Component\Finder\SplFileInfo */
+            /* @var $file SplFileInfo */
             foreach ($finder as $file) {
                 $files[] = $this->getClassName($file->getPath() . DIRECTORY_SEPARATOR . $file->getFilename());
             }
-
         }
 
         //Scan files in /Controller dir
@@ -96,12 +101,14 @@ class AnnotationConfigurationPass implements CompilerPassInterface
 
         $finder = new Finder();
         try {
-            $finder->files()->in($controllerDir)->name('*.php')->contains('Voryx\ThruwayBundle\Annotation')->depth('< 5');
+            $finder->files()->in($controllerDir)
+                ->name('*.php')->contains('Voryx\ThruwayBundle\Annotation')->depth('< 5');
 
             foreach ($finder as $file) {
-                $files[] = $this->getClassName($controllerDir . $file->getFilename());
+                $files[] = $this->getClassName($file->getPathname());
+
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Don't do anything if the Controller folder doesn't exist
         }
 
@@ -114,17 +121,17 @@ class AnnotationConfigurationPass implements CompilerPassInterface
      *
      * @param string $filename
      * @return string if the class name cannot be extracted
-     * @throws \Exception
+     * @throws Exception
      */
-    private function getClassName($filename)
+    private function getClassName($filename): string
     {
         $src = file_get_contents($filename);
         if (!preg_match('/\bnamespace\s+([^;]+);/s', $src, $match)) {
-            throw new \Exception(sprintf('Namespace could not be determined for file "%s".', $filename));
+            throw new Exception(sprintf('Namespace could not be determined for file "%s".', $filename));
         }
         $namespace = $match[1];
         if (!preg_match('/\bclass\s+([^\s]+)\s+(?:extends|implements|{)/is', $src, $match)) {
-            throw new \Exception(sprintf('Could not extract class name from file "%s".', $filename));
+            throw new Exception(sprintf('Could not extract class name from file "%s".', $filename));
         }
         return $namespace . '\\' . $match[1];
     }
