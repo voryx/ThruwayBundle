@@ -118,6 +118,7 @@ class VoryxThruwayExtension extends Extension
         if (!$container->hasDefinition('tagged_service_holder')) {
             $taggedServiceHolder = new Definition();
             $taggedServiceHolder->setClass('ArrayObject');
+			$taggedServiceHolder->setPublic(true);
             $container->setDefinition('tagged_service_holder', $taggedServiceHolder);
         }
 
