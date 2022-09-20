@@ -2,15 +2,15 @@
 
 namespace Voryx\ThruwayBundle\Command;
 
-use Psr\Log\NullLogger;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Command\Command as CommandCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Thruway\ClientSession;
 use Thruway\Connection;
-use Thruway\Logging\Logger;
 use Thruway\Transport\PawlTransportProvider;
 use Voryx\ThruwayBundle\Process\Command;
 use Voryx\ThruwayBundle\Process\ProcessManager;
@@ -20,7 +20,7 @@ use Voryx\ThruwayBundle\Process\ProcessManager;
  *
  * @package Voryx\ThruwayTestBundle\Command
  */
-class ThruwayProcessCommand extends ContainerAwareCommand
+class ThruwayProcessCommand extends CommandCommand
 {
 
     /**
@@ -49,14 +49,30 @@ class ThruwayProcessCommand extends ContainerAwareCommand
     private $consoleCommand;
 
     /**
-     * @var \Psr\Log\LoggerInterface $logger
+     * @var LoggerInterface $logger
      */
     private $logger;
 
     /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    public function __construct(
+        ContainerInterface $container
+    ) {
+        $this->container = $container;
+        parent::__construct();
+    }
+
+    private function getContainer() {
+        return $this->container;
+    }
+
+    /**
      * Called by the Service Container.
      */
-    public function setLogger(\Psr\Log\LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
@@ -113,6 +129,7 @@ class ThruwayProcessCommand extends ContainerAwareCommand
             default:
                 $output->writeln('Expected an action: start, stop, status');
         }
+        return \Symfony\Component\Console\Command\Command::SUCCESS;
     }
 
     /**
@@ -121,8 +138,8 @@ class ThruwayProcessCommand extends ContainerAwareCommand
      */
     protected function start()
     {
-        $appCmd = "{$this->getContainer()->get('kernel')->getRootDir()}/console";
-        $binCmd = "{$this->getContainer()->get('kernel')->getRootDir()}/../bin/console";
+        $appCmd = "{$this->getContainer()->get('kernel')->getProjectDir()}/console";
+        $binCmd = "{$this->getContainer()->get('kernel')->getProjectDir()}/bin/console";
 
         $this->consoleCommand = file_exists($binCmd) ? $binCmd : $appCmd;
 

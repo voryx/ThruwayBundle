@@ -2,7 +2,6 @@
 
 namespace Voryx\ThruwayBundle\Event;
 
-use Symfony\Component\EventDispatcher\Event;
 use Thruway\ClientSession;
 use Thruway\Transport\TransportInterface;
 
@@ -10,7 +9,7 @@ use Thruway\Transport\TransportInterface;
  * Class SessionEvent
  * @package Voryx\ThruwayBundle\Event
  */
-class SessionEvent extends Event
+class SessionEvent
 {
     /**
      * @var ClientSession

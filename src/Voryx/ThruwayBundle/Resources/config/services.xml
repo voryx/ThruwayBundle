@@ -137,10 +137,12 @@
 
         <!-- Register command as public services -->
         <service id="thruway.command.debug" class="Voryx\ThruwayBundle\Command\ThruwayDebugCommand" public="true">
+            <argument type="service" id="service_container"/>
             <tag name="console.command" command="thruway:debug" />
         </service>
 
         <service id="thruway.command.process" class="Voryx\ThruwayBundle\Command\ThruwayProcessCommand" public="true">
+            <argument type="service" id="service_container"/>
             <call method="setLogger">
                 <argument type="service" id="logger" />
             </call>
@@ -148,6 +150,7 @@
         </service>
 
         <service id="thruway.command.router" class="Voryx\ThruwayBundle\Command\ThruwayRouterCommand" public="true">
+            <argument type="service" id="service_container"/>
             <call method="setLogger">
                 <argument type="service" id="logger" />
             </call>
@@ -155,6 +158,7 @@
         </service>
 
         <service id="thruway.command.worker" class="Voryx\ThruwayBundle\Command\ThruwayWorkerCommand" public="true">
+            <argument type="service" id="service_container"/>
             <call method="setLogger">
                 <argument type="service" id="logger" />
             </call>
@@ -163,7 +167,8 @@
 
         <service id="voryx.thruway.client.react_connector"
                  class="React\Socket\Connector"
-                    >
+                 public="true"
+                 >
                 <argument type="service" id="voryx.thruway.loop"/>
         </service>
     </services>
